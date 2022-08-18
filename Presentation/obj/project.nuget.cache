@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "uU5ZMfiC9AjoCeViVstkM+cXtGQqrQwfGT7envKvprQtfird14ymwygeSyEyK1TqZYpryie/V00b0/1YTDR4ZA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Abobakar Sadeeq\\Documents\\GitHub\\Paen-Chat-App-server\\Presentation\\Presentation.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

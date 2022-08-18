@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "1trHN0jlhzK1AjyoOU4Et5K7Tdmxij8Szb47jlh6TMg=",
+  "Source": "paen-chat-app-server",
+  "BasePath": "_content/paen-chat-app-server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

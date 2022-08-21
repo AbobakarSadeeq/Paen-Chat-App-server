@@ -12,3 +12,17 @@ C:\Users\Abobakar Sadeeq\Documents\C# programs\paen-chat-app-server\DataAccess\o
 C:\Users\Abobakar Sadeeq\Documents\C# programs\paen-chat-app-server\DataAccess\obj\Debug\net6.0\DataAccess.pdb
 C:\Users\Abobakar Sadeeq\Documents\C# programs\paen-chat-app-server\DataAccess\obj\Debug\net6.0\DataAccess.genruntimeconfig.cache
 C:\Users\Abobakar Sadeeq\Documents\C# programs\paen-chat-app-server\DataAccess\obj\Debug\net6.0\ref\DataAccess.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\bin\Debug\net6.0\DataAccess.deps.json
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\bin\Debug\net6.0\DataAccess.runtimeconfig.json
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\bin\Debug\net6.0\DataAccess.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\bin\Debug\net6.0\DataAccess.pdb
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.csproj.AssemblyReference.cache
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.AssemblyInfoInputs.cache
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.AssemblyInfo.cs
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.csproj.CoreCompileInputs.cache
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\refint\DataAccess.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.pdb
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.genruntimeconfig.cache
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\ref\DataAccess.dll

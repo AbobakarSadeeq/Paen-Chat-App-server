@@ -10,3 +10,15 @@ C:\Users\Abobakar Sadeeq\Documents\C# programs\paen-chat-app-server\Presentation
 C:\Users\Abobakar Sadeeq\Documents\C# programs\paen-chat-app-server\Presentation\obj\Debug\net6.0\refint\Presentation.dll
 C:\Users\Abobakar Sadeeq\Documents\C# programs\paen-chat-app-server\Presentation\obj\Debug\net6.0\Presentation.pdb
 C:\Users\Abobakar Sadeeq\Documents\C# programs\paen-chat-app-server\Presentation\obj\Debug\net6.0\ref\Presentation.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\bin\Debug\net6.0\Presentation.deps.json
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\bin\Debug\net6.0\Presentation.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\bin\Debug\net6.0\Presentation.pdb
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.csproj.AssemblyReference.cache
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.AssemblyInfoInputs.cache
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.AssemblyInfo.cs
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.csproj.CoreCompileInputs.cache
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\refint\Presentation.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.pdb
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\ref\Presentation.dll

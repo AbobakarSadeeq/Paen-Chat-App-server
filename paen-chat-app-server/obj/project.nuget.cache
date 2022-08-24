@@ -1,10 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "yxAA2Rovwn3b2TnRl+gO+kRWclqbeuGdd+3By1iIykD+x3KMN2MAVUUumfsCaiHJDrPsIQ3g+Amx1LtFGlpalw==",
+  "dgSpecHash": "EBi1L+DK0yeAL/rHZs8pEqEFh8sbxfK3SZgH5+8gnyKNadDk3Q2b4potCaP/cgB0FGhwxUOBbdu/ygV/4LFmcg==",
   "success": true,
   "projectFilePath": "C:\\Users\\Abobakar Sadeeq\\Documents\\GitHub\\Paen-Chat-App-server\\paen-chat-app-server\\paen-chat-app-server.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\cloudinarydotnet\\1.19.0\\cloudinarydotnet.1.19.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\google.apis\\1.57.0\\google.apis.1.57.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\google.apis.auth\\1.57.0\\google.apis.auth.1.57.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\google.apis.core\\1.57.0\\google.apis.core.1.57.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\google.apis.storage.v1\\1.57.0.2742\\google.apis.storage.v1.1.57.0.2742.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.aspnetcore.cors\\2.2.0\\microsoft.aspnetcore.cors.2.2.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.aspnetcore.html.abstractions\\2.2.0\\microsoft.aspnetcore.html.abstractions.2.2.0.nupkg.sha512",

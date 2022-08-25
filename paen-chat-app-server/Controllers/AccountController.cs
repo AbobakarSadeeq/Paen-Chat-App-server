@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Presentation.ViewModel;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Text;
 
 namespace paen_chat_app_server.Controllers
@@ -16,15 +19,19 @@ namespace paen_chat_app_server.Controllers
     public class AccountController : ControllerBase
     {
         private DataContext _dataContext;
-        public AccountController(DataContext dataContext)
+        private readonly IConfiguration configuration;
+
+        public AccountController(DataContext dataContext, IConfiguration configuration)
         {
             _dataContext = dataContext;
+            this.configuration = configuration;
         }
 
         [HttpPost]
-
+        // this algo having add new user and assign random generate contact-number to database and generate a verfication code and store in database and send verfication code to gmail.
         public async Task<IActionResult> RegisteringUser(UserLogInViewModel viewModel)
         {
+            int generatedUserId = 0;
             Random random = new Random();
             StringBuilder randomVerficationPasswordGenerateString = new StringBuilder();
             for (int i = 0; i < 5; i++)
@@ -84,17 +91,13 @@ namespace paen_chat_app_server.Controllers
                     await _dataContext.SaveChangesAsync();
                 }
 
-                
-
-
+                generatedUserId = addingUser.UserID;
             }
-
-
 
             // sending email
 
             MailMessage msgObj = new MailMessage("officalpaenchat@gmail.com", viewModel.Email);
-            msgObj.Subject = "Paen Chat verification code";
+            msgObj.Subject = "Paen chat verification code";
             msgObj.IsBodyHtml = true;
             msgObj.Body = $@"<h1>Paen chat verification code:</h1>
             <p>Your Paen chat verification code is <strong>{randomVerficationPasswordGenerateString.ToString()}.</strong></p> ";
@@ -107,9 +110,62 @@ namespace paen_chat_app_server.Controllers
             client.Credentials = new NetworkCredential() { UserName = "officalpaenchat@gmail.com", Password = "ogvlsqxesbwmhbrm" };
             client.Send(msgObj);
 
-            return Ok("User founded and random verifcation number generated and sended via email");
-
+            return Ok(new
+            {
+                UserId = findingUserByEmail != null ? findingUserByEmail.UserID : generatedUserId
+            });
         }
+
+        [HttpPost("{RandomCodeVerification}")]
+        public async Task<IActionResult> RandomCodeVerification(CodeVerificationViewModel viewModel)
+        {
+            var validatingCurrentUserGeneratedCode = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == viewModel.UserId);
+            if (validatingCurrentUserGeneratedCode == null) return BadRequest("Sorry can't find your email");
+
+            if (validatingCurrentUserGeneratedCode != null)
+            {
+                // checking the generate coded which is valid or not
+                if(validatingCurrentUserGeneratedCode.VerificationPassword == viewModel.EnteredVerificationPassword)
+                {
+                    // user is validate means correct user
+                    // assigin to that user that code is used
+                    validatingCurrentUserGeneratedCode.VerificationPassword = "Code Used";
+                    _dataContext.Update(validatingCurrentUserGeneratedCode);
+                    await _dataContext.SaveChangesAsync();
+
+                    // generate a token
+                    // creatig jwt token
+                    List<Claim> myClaims = new List<Claim>
+                    {
+                        new Claim("UserId", viewModel.UserId.ToString()),
+                    };
+                    var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+                        configuration.GetSection("ApplicationSettings:JWT_Secret").Value));
+
+                    var signingCredentials = new SigningCredentials (key, SecurityAlgorithms.HmacSha256);
+
+                    var token = new JwtSecurityToken(
+                        claims: myClaims,
+                        expires: DateTime.Now.AddDays(7),
+                        signingCredentials: signingCredentials
+                        );
+
+                    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+                    return Ok(jwt);
+
+
+
+                }
+                else if(validatingCurrentUserGeneratedCode.VerificationPassword != viewModel.EnteredVerificationPassword)
+                {
+                    return BadRequest("Sorry code is incorrect, please try again");
+                }
+            }
+
+            return Ok();
+        }
+
+       
 
 
     }

@@ -41,6 +41,8 @@ namespace DataAccess.Entities
             builder.HasKey(x => x.UserID);
             builder.HasIndex(u => u.ContactNumber)
                  .IsUnique();
+
+          
         }
     }
 }

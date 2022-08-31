@@ -1,16 +1,22 @@
-﻿using DataAccess.DataContext_Class;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using DataAccess.DataContext_Class;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Presentation.AppSettings;
 using Presentation.ViewModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace paen_chat_app_server.Controllers
 {
@@ -19,12 +25,23 @@ namespace paen_chat_app_server.Controllers
     public class AccountController : ControllerBase
     {
         private DataContext _dataContext;
+        private readonly IOptions<CloudinarySettings> _cloudinaryConfig;
+        private Cloudinary _cloudinary;
         private readonly IConfiguration configuration;
 
-        public AccountController(DataContext dataContext, IConfiguration configuration)
+        public AccountController(DataContext dataContext, IConfiguration configuration,
+                  IOptions<CloudinarySettings> cloudinaryConfig)
         {
-            _dataContext = dataContext;
             this.configuration = configuration;
+            _dataContext = dataContext;
+            _cloudinaryConfig = cloudinaryConfig;
+            // Give the written keys that are in appsetting.json
+            Account acc = new Account(
+            _cloudinaryConfig.Value.CloudName,
+            _cloudinaryConfig.Value.ApiKey,
+            _cloudinaryConfig.Value.ApiSecret
+            );
+            _cloudinary = new Cloudinary(acc);
         }
 
         [HttpPost]
@@ -110,16 +127,14 @@ namespace paen_chat_app_server.Controllers
             client.Credentials = new NetworkCredential() { UserName = "officalpaenchat@gmail.com", Password = "ogvlsqxesbwmhbrm" };
             client.Send(msgObj);
 
-            return Ok(new
-            {
-                UserId = findingUserByEmail != null ? findingUserByEmail.UserID : generatedUserId
-            });
+            return Ok();
         }
 
         [HttpPost("{RandomCodeVerification}")]
         public async Task<IActionResult> RandomCodeVerification(CodeVerificationViewModel viewModel)
         {
-            var validatingCurrentUserGeneratedCode = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == viewModel.UserId);
+
+            var validatingCurrentUserGeneratedCode = await _dataContext.Users.FirstOrDefaultAsync(a => a.Email == viewModel.Email);
             if (validatingCurrentUserGeneratedCode == null) return BadRequest("Sorry can't find your email");
 
             if (validatingCurrentUserGeneratedCode != null)
@@ -130,6 +145,7 @@ namespace paen_chat_app_server.Controllers
                     // user is validate means correct user
                     // assigin to that user that code is used
                     validatingCurrentUserGeneratedCode.VerificationPassword = "Code Used";
+                    validatingCurrentUserGeneratedCode.EmailVerification = true;
                     _dataContext.Update(validatingCurrentUserGeneratedCode);
                     await _dataContext.SaveChangesAsync();
 
@@ -137,7 +153,7 @@ namespace paen_chat_app_server.Controllers
                     // creatig jwt token
                     List<Claim> myClaims = new List<Claim>
                     {
-                        new Claim("UserId", viewModel.UserId.ToString()),
+                        new Claim("UserId", validatingCurrentUserGeneratedCode.UserID.ToString()),
                     };
                     var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
                         configuration.GetSection("ApplicationSettings:JWT_Secret").Value));
@@ -165,7 +181,89 @@ namespace paen_chat_app_server.Controllers
             return Ok();
         }
 
+        [HttpPost("AuthorizedPerson")]
+        public async Task<IActionResult> AuthorizedPerson(GetTokenViewModel getTokenViewMode)
+        {
+            if (getTokenViewMode == null)
+                return BadRequest("token is not found");
+            // decode the sended token
+            var user = new User();
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(getTokenViewMode.Token);
+            var tokenS = jsonToken as JwtSecurityToken;
+            var gettingDataFromTokenObj = tokenS?.Payload;
+            foreach (var singleProp in gettingDataFromTokenObj)
+            {
+                if (singleProp.Key == "UserId")
+                {
+                    user = await _dataContext.Users
+                        .FirstOrDefaultAsync(a=>a.UserID == Convert.ToInt32(singleProp.Value));
+                    break;
+                }
+            }
+            return Ok(new
+            {
+                userId = user.UserID,
+                userName = user.UserName,
+                userContactNumber = user.ContactNumber,
+                userProfilePhoto = user.ProfilePhotoUrl,
+                userStatus = user.About,
+            });
+        }
+
+        [HttpGet("FetchingDataForFormUser/{userId}")]
+        public async Task<IActionResult> FetchingDataForFormUser(int userId)
+        {
+
+            var fetchingDataFromServer = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == userId);
+            return Ok(new
+            {
+                UserName = fetchingDataFromServer.UserName,
+                AboutStatus = fetchingDataFromServer.About,
+                ProfilePhotoUrl = fetchingDataFromServer.ProfilePhotoUrl
+            });
+        }
+
+        [HttpPut("AddingUserProfileData")]
+        public async Task<IActionResult> AddingUserProfileData([FromForm] AddUserInfoViewModel addUserInfo)
+        {
+            if(addUserInfo.File == null)
+            {
+                var updatingUserProfileData = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == addUserInfo.UserId);
+                updatingUserProfileData.UserName = addUserInfo.UserName;
+                updatingUserProfileData.About = addUserInfo.AboutStatus;
+                _dataContext.Update(updatingUserProfileData);
+                await _dataContext.SaveChangesAsync();
+            }else
+            {
+                var updatingUserProfileData = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == addUserInfo.UserId);
+                updatingUserProfileData.UserName = addUserInfo.UserName;
+                updatingUserProfileData.About = addUserInfo.AboutStatus;
+                // store into cloudinary that image
+                var uploadResult = new ImageUploadResult();
+
+                using (var stream = addUserInfo.File.OpenReadStream())
+                {
+                    var uploadparams = new ImageUploadParams
+                    {
+                        File = new FileDescription(addUserInfo.File.Name, stream)
+                    };
+                    uploadResult = _cloudinary.Upload(uploadparams);
+                }
+               updatingUserProfileData.PublicId = uploadResult.PublicId;
+               updatingUserProfileData.ProfilePhotoUrl = uploadResult.Url.ToString();
+
+                _dataContext.Update(updatingUserProfileData);
+                await _dataContext.SaveChangesAsync();
+            }
+            return Ok();
+
+        }
+
        
+
+
+
 
 
     }

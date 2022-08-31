@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "uU5ZMfiC9AjoCeViVstkM+cXtGQqrQwfGT7envKvprQtfird14ymwygeSyEyK1TqZYpryie/V00b0/1YTDR4ZA==",
+  "dgSpecHash": "G3Dz6yXsGeoYlvMGbTyUcPr63PIfmbEU1SEPePkhrB+lR0zCJuwomx+NZAEoOzYJ3xEK80OMJ7fBuObtXIzeIQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Abobakar Sadeeq\\Documents\\GitHub\\Paen-Chat-App-server\\Presentation\\Presentation.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.aspnetcore.http.features\\5.0.17\\microsoft.aspnetcore.http.features.5.0.17.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.extensions.primitives\\5.0.1\\microsoft.extensions.primitives.5.0.1.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\system.io.pipelines\\5.0.2\\system.io.pipelines.5.0.2.nupkg.sha512"
   ],
   "logs": []
 }

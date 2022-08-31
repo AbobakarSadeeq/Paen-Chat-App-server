@@ -1,7 +1,9 @@
 using DataAccess.DataContext_Class;
 using Microsoft.EntityFrameworkCore;
+using Presentation.AppSettings;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
 builder.Services.AddDbContextPool<DataContext>(options =>
                 options.UseSqlServer(

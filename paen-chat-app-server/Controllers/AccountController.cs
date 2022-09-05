@@ -17,6 +17,7 @@ using System.Security.Claims;
 using System.Text;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace paen_chat_app_server.Controllers
 {
@@ -182,6 +183,7 @@ namespace paen_chat_app_server.Controllers
         }
 
         [HttpPost("AuthorizedPerson")]
+        [Authorize]
         public async Task<IActionResult> AuthorizedPerson(GetTokenViewModel getTokenViewMode)
         {
             if (getTokenViewMode == null)
@@ -212,6 +214,7 @@ namespace paen_chat_app_server.Controllers
         }
 
         [HttpGet("FetchingDataForFormUser/{userId}")]
+        [Authorize]
         public async Task<IActionResult> FetchingDataForFormUser(int userId)
         {
 
@@ -220,11 +223,14 @@ namespace paen_chat_app_server.Controllers
             {
                 UserName = fetchingDataFromServer.UserName,
                 AboutStatus = fetchingDataFromServer.About,
-                ProfilePhotoUrl = fetchingDataFromServer.ProfilePhotoUrl
+                ProfilePhotoUrl = fetchingDataFromServer.ProfilePhotoUrl,
+                Email = fetchingDataFromServer.Email,
+                Contact = fetchingDataFromServer.ContactNumber
             });
         }
 
         [HttpPut("AddingUserProfileData")]
+        [Authorize]
         public async Task<IActionResult> AddingUserProfileData([FromForm] AddUserInfoViewModel addUserInfo)
         {
             if(addUserInfo.File == null)

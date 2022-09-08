@@ -1,7 +1,9 @@
 using DataAccess.DataContext_Class;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using paen_chat_app_server.SignalRChatHub;
 using Presentation.AppSettings;
 using System.Text;
 
@@ -40,20 +42,34 @@ builder.Services.AddControllersWithViews()
 
 // Add services to the container.
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // connecting client
-builder.Services.AddCors(opt => {
-    opt.AddDefaultPolicy(builder => {
-        builder.AllowAnyOrigin();
-        builder.AllowAnyMethod();
-        builder.AllowAnyHeader();
-    });
+//builder.Services.AddCors(opt => {
+//    opt.AddDefaultPolicy(builder => {
+//        builder.AllowAnyOrigin();
+//        builder.AllowAnyMethod();
+//        builder.AllowAnyHeader();
+
+//    });
+//});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllHeaders",
+          builder =>
+          {
+              builder.WithOrigins("http://localhost:3000")
+                     .AllowAnyHeader()
+                     .AllowAnyMethod()
+                     .AllowCredentials();
+          });
 });
 
+builder.Services.AddSignalR();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -64,15 +80,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
 
-
-app.UseCors(a => {
-    a.WithOrigins(builder.Configuration.GetValue<string>("Client_URL"))
-        .AllowAnyHeader()
-        .AllowAnyMethod();
-});
-
+app.UseCors("AllowAllHeaders");
 
 
 app.UseAuthentication();
@@ -80,4 +91,9 @@ app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
 
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<ChatHub>("/chathub");
+});
 app.Run();

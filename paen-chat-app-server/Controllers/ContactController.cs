@@ -33,6 +33,13 @@ namespace paen_chat_app_server.Controllers
 
             // first check the given contact is a user or not means using is he/she using it or not.
             var isContactIsValidUser = await _dataContext.Users.FirstOrDefaultAsync(a => a.ContactNumber == viewModel.ContactNo);
+            
+            // making connection randomize characters for users to connect with their private chats.
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            string randomizeChars = new string(Enumerable.Repeat(chars, 6)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+
             var addContact = new List<Contact>()
             {
                 new Contact
@@ -42,7 +49,8 @@ namespace paen_chat_app_server.Controllers
                 FirstName = viewModel.FirstName,
                 PhoneNumber = viewModel.ContactNo,
                 UserId = viewModel.UserId,
-                LastName = viewModel.LastName
+                LastName = viewModel.LastName,
+                UserGroupPrivateConnectionId = randomizeChars
                 }
 
             };
@@ -64,6 +72,7 @@ namespace paen_chat_app_server.Controllers
                     PhoneNumber = findingUser.ContactNumber,
                     Block_Contact = false,
                     UserId = isContactIsValidUser.UserID,
+                    UserGroupPrivateConnectionId = addContact[0].UserGroupPrivateConnectionId
                 });
 
             }
@@ -72,8 +81,20 @@ namespace paen_chat_app_server.Controllers
                 addContact[0].Verified_Contact = false;
             }
 
-            await _dataContext.Contacts.AddRangeAsync(addContact);
-            await _dataContext.SaveChangesAsync();
+            try
+            {
+
+                await _dataContext.Contacts.AddRangeAsync(addContact);
+
+                await _dataContext.SaveChangesAsync();
+
+            }
+            catch (DbUpdateException ex) // if unique value is founded in contact number then update the contact value there.
+            {
+                addContact[0].UserGroupPrivateConnectionId = addContact[0].UserGroupPrivateConnectionId + addContact[0].UserGroupPrivateConnectionId[addContact[0].UserGroupPrivateConnectionId.Length - 1];
+                await _dataContext.Contacts.AddRangeAsync(addContact);
+                await _dataContext.SaveChangesAsync();
+            }
 
             return Ok();
         }

@@ -20,6 +20,7 @@ namespace DataAccess.Entities
         public DateTime? Created_At { get; set; }
         public int UserId { get; set; }
         public virtual User? User { get; set; }
+        public string? UserGroupPrivateConnectionId { get; set; }
 
     }
 

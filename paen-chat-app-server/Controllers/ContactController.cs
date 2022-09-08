@@ -154,5 +154,19 @@ namespace paen_chat_app_server.Controllers
             return Ok(RightJoining);
         }
 
+        [HttpPut("EditContact")]
+        public async Task<IActionResult> EditContact(EditContactViewModel viewModel)
+        {
+            var findingContactId = await _dataContext.Contacts
+                .FirstOrDefaultAsync(a=>a.ContactID == viewModel.ContactId);
+            findingContactId.FirstName = viewModel.FirstName;
+            findingContactId.LastName =  viewModel.LastName;
+            _dataContext.Update(findingContactId);
+            await _dataContext.SaveChangesAsync();
+
+
+            return Ok();
+        }
+
     }
 }

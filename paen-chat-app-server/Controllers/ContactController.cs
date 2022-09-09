@@ -137,7 +137,7 @@ namespace paen_chat_app_server.Controllers
                                       join u in _dataContext.Users // left - table
                                       on c.PhoneNumber equals u.ContactNumber into bothTableData
                                       from rightTable in bothTableData.DefaultIfEmpty()
-                                      where c.UserId == userId && c.LastMessage != null
+                                      where c.UserId == userId && c.LastMessage != null && c.Block_Contact == false
                                       select new
                                       {
                                           ContactId = c.ContactID,
@@ -156,7 +156,7 @@ namespace paen_chat_app_server.Controllers
 
         [HttpPut("EditContact")]
         public async Task<IActionResult> EditContact(EditContactViewModel viewModel)
-        {
+            {
             var findingContactId = await _dataContext.Contacts
                 .FirstOrDefaultAsync(a=>a.ContactID == viewModel.ContactId);
             findingContactId.FirstName = viewModel.FirstName;
@@ -165,6 +165,26 @@ namespace paen_chat_app_server.Controllers
             await _dataContext.SaveChangesAsync();
 
 
+            return Ok();
+        }
+
+        [HttpGet("BlockingContact/{contactId}")]
+        public async Task<IActionResult> BlockingContact(int contactId)
+        {
+            var findingContact = await _dataContext.Contacts.FirstOrDefaultAsync(a => a.ContactID == contactId);
+            findingContact.Block_Contact = true; // for block and unlock
+            _dataContext.Update(findingContact);
+            await _dataContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpGet("UnlockingContact/{contactId}")]
+        public async Task<IActionResult> UnlockingContact(int contactId)
+        {
+            var findingContact = await _dataContext.Contacts.FirstOrDefaultAsync(a => a.ContactID == contactId);
+            findingContact.Block_Contact = false; // for block and unlock
+            _dataContext.Update(findingContact);
+            await _dataContext.SaveChangesAsync();
             return Ok();
         }
 

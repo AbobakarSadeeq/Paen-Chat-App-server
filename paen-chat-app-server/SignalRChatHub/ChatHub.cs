@@ -27,7 +27,7 @@ namespace paen_chat_app_server.SignalRChatHub
             // if user is not there then add user to group
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
             // sending message to group about user has been joined
-            await Clients.Group(groupName).SendAsync("UserJoinGroup", userId);
+            await Clients.Group(groupName).SendAsync("UserJoinGroup", userId, groupName);
             // anyone is connecting to the group that must havve a default value which should not store 
             //await Clients.Groups(groupName).SendAsync("DefaultValue", "defaultVal", userId);
 

@@ -140,6 +140,7 @@ namespace paen_chat_app_server.Controllers
                                       select new
                                       {
                                           ContactId = c.ContactID,
+                                          SingleContactGroupConnectionId = c.UserGroupPrivateConnectionId,
                                           ContactName = c.FirstName.Length == 0 ? "" : c.FirstName + " " + c.LastName,
                                           PhoneNumber = c.PhoneNumber,
                                           BlockContact = c.Block_Contact,

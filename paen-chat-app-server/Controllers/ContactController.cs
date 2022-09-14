@@ -33,7 +33,7 @@ namespace paen_chat_app_server.Controllers
 
             // first check the given contact is a user or not means using is he/she using it or not.
             var isContactIsValidUser = await _dataContext.Users.FirstOrDefaultAsync(a => a.ContactNumber == viewModel.ContactNo);
-            
+
             // making connection randomize characters for users to connect with their private chats.
             Random random = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -131,11 +131,10 @@ namespace paen_chat_app_server.Controllers
         [HttpGet("ListOfChatConnectedWithSingleUser/{userId}")]
         public async Task<IActionResult> ListOfChatConnectedWithSingleUser(int userId)
         {
-            // connect the contact with users table and then filter by given userId 
-            // when filtered then filterd again by last_message (means thats chats are doing the message)
             var RightJoining = await (from c in _dataContext.Contacts // right-table
                                       join u in _dataContext.Users // left - table
                                       on c.PhoneNumber equals u.ContactNumber into bothTableData
+
                                       from rightTable in bothTableData.DefaultIfEmpty()
                                       where c.UserId == userId && c.LastMessage != null && c.Block_Contact == false
                                       select new
@@ -146,21 +145,34 @@ namespace paen_chat_app_server.Controllers
                                           BlockContact = c.Block_Contact,
                                           UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
                                           LastMessage = c.LastMessage,
+                                          UserItSelfId = userId,
+                                          UsersConnectedId = rightTable.UserID,
+                                          SingleConnectedUserMessagesList = new List<Message>()
                                       }).ToListAsync();
 
-
-
-
+            foreach (var singleContact in RightJoining)
+            {
+                var findingSingleContactAllMessages = _dataContext.Messages
+                    .Include(a => a.MessageAttachments)
+                    .Where(a => (a.SenderId == userId && a.ReciverId == singleContact.UsersConnectedId) ||
+                    (a.SenderId == singleContact.UsersConnectedId && a.ReciverId == userId))
+                    .ToList();
+                if (findingSingleContactAllMessages != null)
+                {
+                    singleContact.SingleConnectedUserMessagesList.AddRange(findingSingleContactAllMessages);
+                }
+            }
+                
             return Ok(RightJoining);
         }
 
         [HttpPut("EditContact")]
         public async Task<IActionResult> EditContact(EditContactViewModel viewModel)
-            {
+        {
             var findingContactId = await _dataContext.Contacts
-                .FirstOrDefaultAsync(a=>a.ContactID == viewModel.ContactId);
+                .FirstOrDefaultAsync(a => a.ContactID == viewModel.ContactId);
             findingContactId.FirstName = viewModel.FirstName;
-            findingContactId.LastName =  viewModel.LastName;
+            findingContactId.LastName = viewModel.LastName;
             _dataContext.Update(findingContactId);
             await _dataContext.SaveChangesAsync();
 

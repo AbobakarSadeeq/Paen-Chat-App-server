@@ -1,4 +1,5 @@
 ﻿using DataAccess.DataContext_Class;
+using DataAccess.Entities;
 using Microsoft.AspNetCore.SignalR;
 using Presentation.ViewModel.UserHub;
 
@@ -7,7 +8,7 @@ namespace paen_chat_app_server.SignalRChatHub
     public class ChatHub : Hub
     {
         private readonly DataContext _dataContext;
-        private HashSet<UsersHub> connectedUsers = new HashSet<UsersHub>();
+         private HashSet<UsersHub> connectedUsers = new HashSet<UsersHub>();
         public ChatHub(DataContext dataContext)
         {
             _dataContext = dataContext;
@@ -36,9 +37,9 @@ namespace paen_chat_app_server.SignalRChatHub
 
 
 
-        public async Task SendMessageToGroup(string message, string userId, string groupName)
+        public async Task SendMessageToGroup(Message message, string groupName)
         {
-            await Clients.Group(groupName).SendAsync("SendMessage", message, userId);
+            await Clients.Group(groupName).SendAsync("SendMessage", message);
 
         }
 
@@ -80,4 +81,6 @@ namespace paen_chat_app_server.SignalRChatHub
 
 
     }
+
 }
+

@@ -78,9 +78,6 @@ namespace DataAccess.Migrations
                     b.Property<bool>("MessageSeen")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Message_Type")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("ReciverId")
                         .HasColumnType("int");
 

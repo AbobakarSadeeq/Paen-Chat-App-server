@@ -1,13 +1,21 @@
 {
   "version": 2,
-  "dgSpecHash": "G3Dz6yXsGeoYlvMGbTyUcPr63PIfmbEU1SEPePkhrB+lR0zCJuwomx+NZAEoOzYJ3xEK80OMJ7fBuObtXIzeIQ==",
+  "dgSpecHash": "JkE2EONP6iVjob+D8MAfdS8slIDXRsiWkpXsKKzXRvH+k0B5LNLrKkjWzRvTSbvAxKMhHtFarZIHKekWPHAtHQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Abobakar Sadeeq\\Documents\\GitHub\\Paen-Chat-App-server\\Presentation\\Presentation.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.aspnetcore.http.features\\5.0.17\\microsoft.aspnetcore.http.features.5.0.17.nupkg.sha512",
-    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.extensions.primitives\\5.0.1\\microsoft.extensions.primitives.5.0.1.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\7.0.0\\microsoft.extensions.caching.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.extensions.caching.stackexchangeredis\\7.0.1\\microsoft.extensions.caching.stackexchangeredis.7.0.1.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\7.0.0\\microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\7.0.0\\microsoft.extensions.logging.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.extensions.options\\7.0.0\\microsoft.extensions.options.7.0.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\microsoft.extensions.primitives\\7.0.0\\microsoft.extensions.primitives.7.0.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
-    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\system.io.pipelines\\5.0.2\\system.io.pipelines.5.0.2.nupkg.sha512"
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\pipelines.sockets.unofficial\\2.2.2\\pipelines.sockets.unofficial.2.2.2.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\stackexchange.redis\\2.6.86\\stackexchange.redis.2.6.86.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\system.io.pipelines\\5.0.2\\system.io.pipelines.5.0.2.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
   ],
   "logs": []
 }

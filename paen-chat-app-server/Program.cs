@@ -1,10 +1,12 @@
 using DataAccess.DataContext_Class;
+using DataAccess.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using paen_chat_app_server.SignalRChatHub;
 using Presentation.AppSettings;
+using StackExchange.Redis;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,15 +48,14 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// connecting client
-//builder.Services.AddCors(opt => {
-//    opt.AddDefaultPolicy(builder => {
-//        builder.AllowAnyOrigin();
-//        builder.AllowAnyMethod();
-//        builder.AllowAnyHeader();
 
-//    });
-//});
+var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisDbConnectionString"));
+builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+
+
+// services registeration
+builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
+
 
 builder.Services.AddCors(options =>
 {

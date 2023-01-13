@@ -152,3 +152,10 @@ C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-ser
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Extensions.Features.dll
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Extensions.Logging.Abstractions.dll
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\System.IO.Pipelines.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Extensions.Options.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Extensions.Primitives.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\StackExchange.Redis.dll

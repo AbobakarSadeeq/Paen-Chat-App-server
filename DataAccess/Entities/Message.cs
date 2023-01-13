@@ -12,10 +12,10 @@ namespace DataAccess.Entities
     {
         public int MessageID { get; set; }
         public int? SenderId { get; set; }
-        public virtual User SenderUser { get; set; }
+        public virtual User? SenderUser { get; set; }
         public int? ReciverId { get; set; }
-        public virtual User ReciverUser { get; set; }
-        public string? Message_Type { get; set; }
+        public virtual User? ReciverUser { get; set; }
+
         public string? UserMessage { get; set; } // by default null
         public DateTime? Created_At { get; set; }
         public bool MessageSeen { get; set; }

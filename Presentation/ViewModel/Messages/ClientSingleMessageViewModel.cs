@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Presentation.ViewModel.Messages
 {
-    public class MessagesViewModel
+    public class ClientSingleMessageViewModel
     {
         public int? SenderId { get; set; }
         public int? ReciverId { get; set; }
-        public string? Message_Type { get; set; }
         public string? UserMessage { get; set; } // by default null
         public string? MessageTimeStamp { get; set; }
         public string? MessageDateStamp { get; set; }

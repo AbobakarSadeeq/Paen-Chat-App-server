@@ -37,9 +37,9 @@ namespace paen_chat_app_server.SignalRChatHub
 
 
 
-        public async Task SendMessageToGroup(Message message, string groupName)
+        public async Task SendMessageToGroup(Message message)
         {
-            await Clients.Group(groupName).SendAsync("SendMessage", message);
+            await Clients.Group("sadf").SendAsync("SendMessage", message);
 
         }
 
@@ -57,7 +57,6 @@ namespace paen_chat_app_server.SignalRChatHub
 
         
 
-
         public async Task OnConnectedUserAsync(int userId, string userName)
         {
             connectedUsers.Add(new UsersHub
@@ -71,8 +70,24 @@ namespace paen_chat_app_server.SignalRChatHub
              
         }
 
+
+        public async Task UserTryingToDisconnecting(List<string> groupsName, string disconnectingUserId)
+        {
+            // those groupsName will be used for to send request to those function whose are same and to update their array state
+            // remove that id from js array of other user array list
+            await  Clients.Groups(groupsName).SendAsync("RemoveDisconnectedUserDataFromArray", disconnectingUserId);
+        
+        }
+
+
         public override Task OnDisconnectedAsync(Exception? exception)
         {
+            // whenever user disconnected then send the message to other user whose is connected with him/her
+
+
+
+
+
             return base.OnDisconnectedAsync(exception);
         }
 

@@ -76,30 +76,30 @@ namespace paen_chat_app_server.Controllers
             //await redisCache.SetValueToRedisAsync<string>("1", "from .net"); // make the serverices for that here and register that service in DI and MS recommended to not separatly and dont use the extension method here for that
             //var gettingDataFromRedis = await redisCache.GetRecordAsync<string>("1");
 
-            await _redisCacheService.SaveMessageToHash(viewModel, "GroupId");
+            await _redisCacheService.SaveMessageToHash(viewModel, "GroupId0");
 
-            var employeeDataList = new List<Employee>()
-            {
-                new Employee() { Id = 1, Name = "abc", Age= 20},
-                new Employee() { Id =2, Name = "dsfgabc", Age= 20},
-                new Employee() { Id = 3, Name = "dfg", Age= 21230},
-                new Employee() { Id = 4, Name = "sdfg", Age= 2230},
-                new Employee() { Id = 5, Name = "dsfg", Age= 220},
-                new Employee() { Id = 6, Name = "dfsg", Age= 2230},
-                new Employee() { Id = 7, Name = "re", Age= 20321},
-                new Employee() { Id = 8, Name = "tretwrt", Age= 202},
-            };
+            //var employeeDataList = new List<Employee>()
+            //{
+            //    new Employee() { Id = 1, Name = "abc", Age= 20},
+            //    new Employee() { Id =2, Name = "dsfgabc", Age= 20},
+            //    new Employee() { Id = 3, Name = "dfg", Age= 21230},
+            //    new Employee() { Id = 4, Name = "sdfg", Age= 2230},
+            //    new Employee() { Id = 5, Name = "dsfg", Age= 220},
+            //    new Employee() { Id = 6, Name = "dfsg", Age= 2230},
+            //    new Employee() { Id = 7, Name = "re", Age= 20321},
+            //    new Employee() { Id = 8, Name = "tretwrt", Age= 202},
+            //};
 
-            var conertingToJsonString = JsonSerializer.Serialize(employeeDataList);
-            JArray rss = JArray.Parse(conertingToJsonString);
-            var newEmployee = new Employee() { Id = 9, Name = "Abobakar", Age = 10 };
-            var convertSingleObjToJson = JsonSerializer.Serialize(newEmployee);
-            rss.Add(convertSingleObjToJson);
+            //var conertingToJsonString = JsonSerializer.Serialize(employeeDataList);
+            //JArray rss = JArray.Parse(conertingToJsonString);
+            //var newEmployee = new Employee() { Id = 9, Name = "Abobakar", Age = 10 };
+            //var convertSingleObjToJson = JsonSerializer.Serialize(newEmployee);
+            //rss.Add(convertSingleObjToJson);
             
-            var convertAgain = rss.ToString();
+            //var convertAgain = rss.ToString();
 
 
-            var convertingToEmployeesListNormal = JsonSerializer.Deserialize<List<Employee>>(convertAgain);
+            //var convertingToEmployeesListNormal = JsonSerializer.Deserialize<List<Employee>>(convertAgain);
            // var addingAnotherEmployeeToString = J
 
 

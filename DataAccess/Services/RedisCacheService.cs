@@ -22,13 +22,14 @@ namespace DataAccess.Services
         {
             _redis = redis;
         }
+
         public async Task SaveMessageToHash(ClientSingleMessageViewModel viewModel, string groupId)
         {
             // ClientMessages == hash name in cache
             // redis entry == inside that hash items
             var db = _redis.GetDatabase();
-            var hashFoundInRedis = await db.HashExistsAsync("ClientMessages", groupId);
-            if(hashFoundInRedis == false)
+            var hashFoundInRedis = await db.HashLengthAsync("ClientMessages"); // hashLength is O(1)
+            if(hashFoundInRedis == 0) 
             {
                 HashEntry[] insertDataToRedisNewHash = {
 
@@ -39,11 +40,10 @@ namespace DataAccess.Services
 
                 };
                 // create hash if not exist then it will be create as well and add the data you want to add.
-                var setExpireTime = DateTime.Now.AddMinutes(2);
-                
+                var setExpireTime = DateTime.Now.AddMinutes(2); // it will expire from now two minutes if that hash is not 
 
                 await db.HashSetAsync("ClientMessages", insertDataToRedisNewHash);
-                await db.KeyExpireAsync("ClientMessages", setExpireTime);
+                await db.KeyExpireAsync("ClientMessages", setExpireTime); // the hash will be expire when the time is up
                 return;
             }
 
@@ -77,18 +77,26 @@ namespace DataAccess.Services
 
         private string ConvertingMultipleObjectsToString(List<ClientSingleMessageViewModel> usersMessagesList)
         {
+            if(usersMessagesList == null)
+                return string.Empty;
+
             var convertingObject = JsonSerializer.Serialize(usersMessagesList);
             return convertingObject;
         }
 
         private ClientSingleMessageViewModel ConvertingSingleStringObjectToObject(string singleMessage)
         {
+            if (singleMessage == null)
+                return new ClientSingleMessageViewModel();
+
             var convertingString = JsonSerializer.Deserialize<ClientSingleMessageViewModel>(singleMessage);
             return convertingString;
         }
 
         private List<ClientSingleMessageViewModel> ConvertingStringToObjects(string multipleMessages)
         {
+            if (multipleMessages == null)
+                return new List<ClientSingleMessageViewModel>();
 
             var convertingString = JsonSerializer.Deserialize<List<ClientSingleMessageViewModel>>(multipleMessages);
             return convertingString;

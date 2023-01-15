@@ -22,3 +22,6 @@ C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\refint\Presentation.dll
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.pdb
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\ref\Presentation.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\bin\Debug\net6.0\Business Core.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\bin\Debug\net6.0\Business Core.pdb
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\Presentation\obj\Debug\net6.0\Presentation.csproj.CopyComplete

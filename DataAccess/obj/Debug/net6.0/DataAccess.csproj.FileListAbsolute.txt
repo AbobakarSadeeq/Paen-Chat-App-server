@@ -29,3 +29,5 @@ C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\De
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\bin\Debug\net6.0\Presentation.dll
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\bin\Debug\net6.0\Presentation.pdb
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\obj\Debug\net6.0\DataAccess.csproj.CopyComplete
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\bin\Debug\net6.0\Business Core.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\DataAccess\bin\Debug\net6.0\Business Core.pdb

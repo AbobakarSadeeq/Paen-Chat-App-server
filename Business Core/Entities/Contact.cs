@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Entities
+namespace Business_Core.Entities
 {
     public class Contact
     {
@@ -33,7 +33,7 @@ namespace DataAccess.Entities
             // Relationship
             builder.HasOne(a => a.User)
                 .WithMany(a => a.Contacts)
-                .HasForeignKey(a=>a.UserId)
+                .HasForeignKey(a => a.UserId)
                 .IsRequired(true);
         }
     }

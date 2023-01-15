@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "paen-chat-app-server", "paen-chat-app-server\paen-chat-app-server.csproj", "{7A989A47-01C8-4013-A2CE-05B37DD0DE2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "paen-chat-app-server", "paen-chat-app-server\paen-chat-app-server.csproj", "{7A989A47-01C8-4013-A2CE-05B37DD0DE2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{D096741D-70CC-4AEE-9019-E8348152EDEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\DataAccess.csproj", "{D096741D-70CC-4AEE-9019-E8348152EDEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\Presentation.csproj", "{63FE756C-52ED-43F8-ABF1-8F74C0ADC181}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Presentation", "Presentation\Presentation.csproj", "{63FE756C-52ED-43F8-ABF1-8F74C0ADC181}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Business Core", "Business Core\Business Core.csproj", "{F4F68165-1AC4-4BDD-820E-866C4C4961D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{63FE756C-52ED-43F8-ABF1-8F74C0ADC181}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63FE756C-52ED-43F8-ABF1-8F74C0ADC181}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63FE756C-52ED-43F8-ABF1-8F74C0ADC181}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4F68165-1AC4-4BDD-820E-866C4C4961D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4F68165-1AC4-4BDD-820E-866C4C4961D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4F68165-1AC4-4BDD-820E-866C4C4961D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4F68165-1AC4-4BDD-820E-866C4C4961D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

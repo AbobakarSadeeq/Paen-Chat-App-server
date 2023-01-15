@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Entities
+namespace Business_Core.Entities
 {
     public class User
     {
@@ -16,8 +16,8 @@ namespace DataAccess.Entities
         public string VerificationPassword { get; set; }
         public string ContactNumber { get; set; }
         public string? About { get; set; }
-        public bool EmailVerification { get;set; } // used for when user logging then email is verfiy and logged in then true and when logout then become false and it will be true when user is logged in 
-        public bool isActive{ get; set; }
+        public bool EmailVerification { get; set; } // used for when user logging then email is verfiy and logged in then true and when logout then become false and it will be true when user is logged in 
+        public bool isActive { get; set; }
 
         /// <summary>
         /// one user have only one profile photo
@@ -42,7 +42,7 @@ namespace DataAccess.Entities
             builder.HasIndex(u => u.ContactNumber)
                  .IsUnique();
 
-          
+
         }
     }
 }

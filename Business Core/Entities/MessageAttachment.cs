@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Entities
+namespace Business_Core.Entities
 {
     public class MessageAttachment
     {
@@ -15,7 +15,7 @@ namespace DataAccess.Entities
         public string? PublicId { get; set; }
         public int MessageId { get; set; }
         public virtual Message? Message { get; set; }
-        
+
 
     }
 
@@ -28,7 +28,7 @@ namespace DataAccess.Entities
             // Relationship reciver
             builder.HasOne(a => a.Message)
                 .WithMany(a => a.MessageAttachments)
-                .HasForeignKey(a=>a.MessageId)
+                .HasForeignKey(a => a.MessageId)
                 .IsRequired(true);
         }
     }

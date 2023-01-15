@@ -1,5 +1,5 @@
-﻿using DataAccess.DataContext_Class;
-using DataAccess.Entities;
+﻿using Business_Core.Entities;
+using DataAccess.DataContext_Class;
 using Microsoft.AspNetCore.SignalR;
 using Presentation.ViewModel.UserHub;
 

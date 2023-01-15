@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using Business_Core.Entities;
+using Business_Core.IServices;
+using Microsoft.Extensions.Caching.Distributed;
 using Presentation.ViewModel.Messages;
 using StackExchange.Redis;
 using System;
@@ -10,11 +12,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Services
 {
-    public interface IRedisCacheService
-    {
-       Task SaveMessageToHash(ClientSingleMessageViewModel viewModel, string groupId);
 
-    }
     public class RedisCacheService : IRedisCacheService
     {
         private readonly IConnectionMultiplexer _redis;
@@ -23,19 +21,23 @@ namespace DataAccess.Services
             _redis = redis;
         }
 
-        public async Task SaveMessageToHash(ClientSingleMessageViewModel viewModel, string groupId)
+        public async Task SaveMessageToHash(ClientMessageRedis clientMessage, string groupId)
         {
+            
+
+
             // ClientMessages == hash name in cache
             // redis entry == inside that hash items
             var db = _redis.GetDatabase();
+
             var hashFoundInRedis = await db.HashLengthAsync("ClientMessages"); // hashLength is O(1)
             if(hashFoundInRedis == 0) 
             {
                 HashEntry[] insertDataToRedisNewHash = {
 
-                new HashEntry(groupId, ConvertingMultipleObjectsToString(new List<ClientSingleMessageViewModel>()
+                new HashEntry(groupId, ConvertingMultipleObjectsToString(new List<ClientMessageRedis>()
                 {
-                    viewModel
+                    clientMessage
                 }))
 
                 };
@@ -43,7 +45,8 @@ namespace DataAccess.Services
                 var setExpireTime = DateTime.Now.AddMinutes(2); // it will expire from now two minutes if that hash is not 
 
                 await db.HashSetAsync("ClientMessages", insertDataToRedisNewHash);
-                await db.KeyExpireAsync("ClientMessages", setExpireTime); // the hash will be expire when the time is up
+              //  await db.KeyExpireAsync("ClientMessages", setExpireTime); // the hash will be expire when the time is up
+                
                 return;
             }
 
@@ -52,8 +55,8 @@ namespace DataAccess.Services
             // fetching selected GroupId data in redis hash data structure
             var getGroupIdData = await db.HashGetAsync("ClientMessages", groupId);
 
-            List<ClientSingleMessageViewModel> singleGroupMessage = ConvertingStringToObjects(getGroupIdData);
-            singleGroupMessage.Add(viewModel);
+            List<ClientMessageRedis> singleGroupMessage = ConvertingStringToObjects(getGroupIdData);
+            singleGroupMessage.Add(clientMessage);
 
             // again now serializing it for to store that new data in redis hash
             string newMessageAddedToHash = ConvertingMultipleObjectsToString(singleGroupMessage);
@@ -69,13 +72,13 @@ namespace DataAccess.Services
 
 
 
-        private string ConvertingObjectToString(ClientSingleMessageViewModel singleMessage)
+        private string ConvertingObjectToString(ClientMessageRedis singleMessage)
         {
             var convertingObject = JsonSerializer.Serialize(singleMessage);
             return convertingObject;
         }
 
-        private string ConvertingMultipleObjectsToString(List<ClientSingleMessageViewModel> usersMessagesList)
+        private string ConvertingMultipleObjectsToString(List<ClientMessageRedis> usersMessagesList)
         {
             if(usersMessagesList == null)
                 return string.Empty;
@@ -84,22 +87,32 @@ namespace DataAccess.Services
             return convertingObject;
         }
 
-        private ClientSingleMessageViewModel ConvertingSingleStringObjectToObject(string singleMessage)
+        private ClientMessageRedis ConvertingSingleStringObjectToObject(string singleMessage)
         {
             if (singleMessage == null)
-                return new ClientSingleMessageViewModel();
+                return new ClientMessageRedis();
 
-            var convertingString = JsonSerializer.Deserialize<ClientSingleMessageViewModel>(singleMessage);
+            var convertingString = JsonSerializer.Deserialize<ClientMessageRedis>(singleMessage);
             return convertingString;
         }
 
-        private List<ClientSingleMessageViewModel> ConvertingStringToObjects(string multipleMessages)
+        private List<ClientMessageRedis> ConvertingStringToObjects(string multipleMessages)
         {
             if (multipleMessages == null)
-                return new List<ClientSingleMessageViewModel>();
+                return new List<ClientMessageRedis>();
 
-            var convertingString = JsonSerializer.Deserialize<List<ClientSingleMessageViewModel>>(multipleMessages);
+            var convertingString = JsonSerializer.Deserialize<List<ClientMessageRedis>>(multipleMessages);
             return convertingString;
+        }
+
+        public async Task SaveMessagesToDb()
+        {
+            // get all inside keys in hash for when storing data in hash
+            var db = _redis.GetDatabase();
+            var getAllKeys = await db.HashKeysAsync("ClientMessages");
+            // make repository for database
+            // store all keys only value in database
+            // use hangfire before 1 minute of remove data from redis
         }
     }
 }

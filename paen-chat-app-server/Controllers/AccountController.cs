@@ -30,7 +30,7 @@ namespace paen_chat_app_server.Controllers
         // this algo having add new user and assign random generate contact-number to database and generate a verfication code and store in database and send verfication code to gmail.
         public async Task<IActionResult> RegisteringUser(UserLogInViewModel viewModel)
         {
-            var convertingToEntity = _mapper.Map<User>(viewModel);
+           var convertingToEntity = _mapper.Map<User>(viewModel);
             await _userService.RegistrationUser(convertingToEntity);
             return Ok();
         }

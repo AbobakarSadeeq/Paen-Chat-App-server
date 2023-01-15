@@ -143,22 +143,16 @@ namespace DataAccess.Repositories
 
         public async Task AddingUserInfoAsync(AddUserInfo userInfo)
         {
-            if (userInfo.File == null)
+            var updatingUserProfileData = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == userInfo.UserId);
+            updatingUserProfileData.UserName = userInfo.UserName;
+            updatingUserProfileData.About = userInfo.AboutStatus;
+            if (userInfo.File != null)
             {
-                var updatingUserProfileData = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == userInfo.UserId);
-                updatingUserProfileData.UserName = userInfo.UserName;
-                updatingUserProfileData.About = userInfo.AboutStatus;
-                _dataContext.Users.Update(updatingUserProfileData);
-            } else
-            {
-
-                var updatingUserProfileData = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == userInfo.UserId);
-                updatingUserProfileData.UserName = userInfo.UserName;
-                updatingUserProfileData.About = userInfo.AboutStatus;
                 updatingUserProfileData.PublicId = userInfo.PublicId;
                 updatingUserProfileData.ProfilePhotoUrl = userInfo.ProfilePhotoUrl;
-                _dataContext.Users.Update(updatingUserProfileData);
             }
+            _dataContext.Users.Update(updatingUserProfileData);
+
         }
     }
 }

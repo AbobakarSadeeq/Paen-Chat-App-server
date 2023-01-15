@@ -36,14 +36,13 @@ namespace DataAccess.Repositories
         {
 
             // first check the given contact is a user or not means using is he/she using it or not.
+            // if you are saying that if user added a contact and not verifyied but after sometime it will be verfiyed and here its not possible to do that because the contact number and user must be first verified.
             var isContactIsValidUser = await _DataContext.Users.FirstOrDefaultAsync(a => a.ContactNumber == contact.PhoneNumber);
 
             var addContact = new List<Contact>()
             {
               contact
             };
-
-
 
             if (isContactIsValidUser != null)
             {
@@ -99,7 +98,7 @@ namespace DataAccess.Repositories
                 .FirstOrDefaultAsync(a => a.ContactID == contact.ContactID);
             findingContactId.FirstName = contact.FirstName;
             findingContactId.LastName = contact.LastName;
-            _DataContext.Contacts.Update(contact);
+            _DataContext.Contacts.Update(findingContactId);
 
         }
 
@@ -123,7 +122,7 @@ namespace DataAccess.Repositories
                                          UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
                                          UserId = rightTable.UserID == null ? 0 : rightTable.UserID, // if right table doesnt have it then make it 0
                                      }).ToListAsync();
-            return new { RightJoining };
+            return RightJoining;
         }
 
 
@@ -164,7 +163,7 @@ namespace DataAccess.Repositories
                 }
             }
 
-            return new { RightJoining };
+            return RightJoining;
         }
 
         public async Task UnlocakingContactAsync(int contactId)

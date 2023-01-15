@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Business_Core.Entities;
+using Presentation.ViewModel;
 using Presentation.ViewModel.Contact;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ namespace Presentation.AutoMapper
         public AutoMap()
         {
             CreateMap<EditContactViewModel, Contact>().ReverseMap();
+            CreateMap<UserLogInViewModel, User>().ReverseMap();
+            CreateMap<AddUserInfoViewModel, AddUserInfo>().ReverseMap();
         }
     }
 }

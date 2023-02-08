@@ -200,6 +200,15 @@
           "buildTransitive/netcoreapp3.1/_._": {}
         }
       },
+      "SpanJson/4.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/SpanJson.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/SpanJson.dll": {}
+        }
+      },
       "System.Collections.Immutable/6.0.0": {
         "type": "package",
         "dependencies": {
@@ -621,6 +630,24 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "SpanJson/4.0.0": {
+      "sha512": "ppFa532nDkbxYghTOA+CLVfXL3Huzb/NGlY+WMdzJWRF6WNMhXf9gQVM+7XvUrVGK7fg1pBL9q4ruo7aKH7hxg==",
+      "type": "package",
+      "path": "spanjson/4.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net6.0/SpanJson.dll",
+        "lib/net6.0/SpanJson.pdb",
+        "lib/net6.0/SpanJson.xml",
+        "lib/net7.0/SpanJson.dll",
+        "lib/net7.0/SpanJson.pdb",
+        "lib/net7.0/SpanJson.xml",
+        "spanjson.4.0.0.nupkg.sha512",
+        "spanjson.nuspec"
+      ]
+    },
     "System.Collections.Immutable/6.0.0": {
       "sha512": "l4zZJ1WU2hqpQQHXz1rvC3etVZN+2DLmQMO79FhOTZHMn8tDRr+WU287sbomD0BETlmKDn0ygUgVy9k5xkkJdA==",
       "type": "package",
@@ -725,7 +752,8 @@
     "net6.0": [
       "AutoMapper.Extensions.Microsoft.DependencyInjection >= 12.0.0",
       "Microsoft.AspNetCore.Http.Features >= 5.0.17",
-      "Microsoft.EntityFrameworkCore >= 6.0.8"
+      "Microsoft.EntityFrameworkCore >= 6.0.8",
+      "SpanJson >= 4.0.0"
     ]
   },
   "packageFolders": {
@@ -778,6 +806,10 @@
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
             "version": "[6.0.8, )"
+          },
+          "SpanJson": {
+            "target": "Package",
+            "version": "[4.0.0, )"
           }
         },
         "imports": [

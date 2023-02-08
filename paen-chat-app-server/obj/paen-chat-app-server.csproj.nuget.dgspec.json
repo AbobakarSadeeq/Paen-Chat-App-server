@@ -51,6 +51,10 @@
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[6.0.8, )"
+            },
+            "SpanJson": {
+              "target": "Package",
+              "version": "[4.0.0, )"
             }
           },
           "imports": [
@@ -174,6 +178,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.1, )"
+            },
+            "SpanJson": {
+              "target": "Package",
+              "version": "[4.0.0, )"
             },
             "StackExchange.Redis": {
               "target": "Package",
@@ -330,6 +338,10 @@
               "target": "Package",
               "version": "[13.0.1, )"
             },
+            "SpanJson": {
+              "target": "Package",
+              "version": "[4.0.0, )"
+            },
             "StackExchange.Redis": {
               "target": "Package",
               "version": "[2.6.86, )"
@@ -432,6 +444,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.1, )"
+            },
+            "SpanJson": {
+              "target": "Package",
+              "version": "[4.0.0, )"
             },
             "StackExchange.Redis": {
               "target": "Package",

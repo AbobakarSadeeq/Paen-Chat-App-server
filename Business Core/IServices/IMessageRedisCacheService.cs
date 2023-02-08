@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace Business_Core.IServices
 {
-    public interface IRedisCacheService
+    public interface IMessageRedisCacheService
     {
         Task SaveMessageToHash(ClientMessageRedis message, string groupId);
         Task SaveMessagesToDb();
-
+        Task GetSingleUserAllConnectedWithUsers();
+       
     }
 }

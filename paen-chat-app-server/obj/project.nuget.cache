@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "D7HA/AhZFALJm714g02CK41kr+s0vWDnvaRqVaQ5XjqRjfSCaOsxcKoEQUf3jn9v3I7UON+YAQV52ACv3LXxIw==",
+  "dgSpecHash": "W6vnRyCVr8WOagbvYeuqGs6Dy0AlANQAQzaSdtEJyyfCPPyTpNGhsMr0pu2FwWO50e5I1O0r4ScvbEi/6FXVgw==",
   "success": true,
   "projectFilePath": "C:\\Users\\Abobakar Sadeeq\\Documents\\GitHub\\Paen-Chat-App-server\\paen-chat-app-server\\paen-chat-app-server.csproj",
   "expectedPackageFiles": [
@@ -72,6 +72,7 @@
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\runtime.win-arm64.runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.win-arm64.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\runtime.win-x64.runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.win-x64.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\runtime.win-x86.runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\spanjson\\4.0.0\\spanjson.4.0.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\stackexchange.redis\\2.6.86\\stackexchange.redis.2.6.86.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\swashbuckle.aspnetcore\\6.2.3\\swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.2.3\\swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",

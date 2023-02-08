@@ -659,6 +659,15 @@
           }
         }
       },
+      "SpanJson/4.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/SpanJson.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/SpanJson.dll": {}
+        }
+      },
       "StackExchange.Redis/2.6.86": {
         "type": "package",
         "dependencies": {
@@ -946,7 +955,8 @@
         "dependencies": {
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "12.0.0",
           "Microsoft.AspNetCore.Http.Features": "5.0.17",
-          "Microsoft.EntityFrameworkCore": "6.0.8"
+          "Microsoft.EntityFrameworkCore": "6.0.8",
+          "SpanJson": "4.0.0"
         },
         "compile": {
           "bin/placeholder/Business Core.dll": {}
@@ -968,6 +978,7 @@
           "Microsoft.AspNetCore.Http.Features": "5.0.17",
           "Microsoft.Extensions.Caching.StackExchangeRedis": "7.0.1",
           "Newtonsoft.Json": "13.0.1",
+          "SpanJson": "4.0.0",
           "StackExchange.Redis": "2.6.86"
         },
         "compile": {
@@ -2125,6 +2136,24 @@
         "version.txt"
       ]
     },
+    "SpanJson/4.0.0": {
+      "sha512": "ppFa532nDkbxYghTOA+CLVfXL3Huzb/NGlY+WMdzJWRF6WNMhXf9gQVM+7XvUrVGK7fg1pBL9q4ruo7aKH7hxg==",
+      "type": "package",
+      "path": "spanjson/4.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net6.0/SpanJson.dll",
+        "lib/net6.0/SpanJson.pdb",
+        "lib/net6.0/SpanJson.xml",
+        "lib/net7.0/SpanJson.dll",
+        "lib/net7.0/SpanJson.pdb",
+        "lib/net7.0/SpanJson.xml",
+        "spanjson.4.0.0.nupkg.sha512",
+        "spanjson.nuspec"
+      ]
+    },
     "StackExchange.Redis/2.6.86": {
       "sha512": "++rdOGeAJ3GUZADwygIgap4fyU/pvvtRLN2FClawW/OxG5XhfS/mH66ADk19k+oj6SawuBqgH39mhKhVngai/g==",
       "type": "package",
@@ -2772,6 +2801,7 @@
       "Microsoft.Extensions.Caching.StackExchangeRedis >= 7.0.1",
       "Newtonsoft.Json >= 13.0.1",
       "Presentation >= 1.0.0",
+      "SpanJson >= 4.0.0",
       "StackExchange.Redis >= 2.6.86"
     ]
   },
@@ -2880,6 +2910,10 @@
           "Newtonsoft.Json": {
             "target": "Package",
             "version": "[13.0.1, )"
+          },
+          "SpanJson": {
+            "target": "Package",
+            "version": "[4.0.0, )"
           },
           "StackExchange.Redis": {
             "target": "Package",

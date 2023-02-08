@@ -10,11 +10,13 @@ namespace DataAccess.Repositories
 {
     public class MessageRepository : IMessageRepository
     {
+        // we will write all here about the database and crud of message to db.
         private readonly DataContext _dataContext;
 
         public MessageRepository(DataContext dataContext)
         {
             _dataContext = dataContext;
+            
         }
     }
 }

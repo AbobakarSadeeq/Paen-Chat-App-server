@@ -12,6 +12,8 @@ using Presentation.AppSettings;
 using Presentation.AutoMapper;
 using StackExchange.Redis;
 using System.Text;
+using SpanJson;
+using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
@@ -57,15 +59,17 @@ builder.Services.AddAutoMapper(typeof(AutoMap));
 var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisDbConnectionString"));
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
+builder.Services.AddHangfire(configuration => {
+    configuration.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")); // hangfire need a storage to store its own data so give your sql database or anything you want to give.
+});
 
 // services registeration
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
+builder.Services.AddSingleton<IMessageRedisCacheService, MessageRedisCacheService>();
 
 builder.Services.AddTransient<IContactService, ContactService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IMessageService, MessageService>();
-
 
 
 builder.Services.AddCors(options =>
@@ -84,7 +88,7 @@ builder.Services.AddSignalR();
 builder.Services.AddControllers();
 
 var app = builder.Build();
-
+app.UseHangfireServer();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -92,9 +96,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 
+ 
 app.UseCors("AllowAllHeaders");
 
 
@@ -102,6 +106,7 @@ app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
+
 
 app.UseEndpoints(endpoints =>
 {

@@ -2,6 +2,7 @@
 using Business_Core.Entities;
 using Presentation.ViewModel;
 using Presentation.ViewModel.Contact;
+using Presentation.ViewModel.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace Presentation.AutoMapper
             CreateMap<EditContactViewModel, Contact>().ReverseMap();
             CreateMap<UserLogInViewModel, User>().ReverseMap();
             CreateMap<AddUserInfoViewModel, AddUserInfo>().ReverseMap();
+            CreateMap<ClientSingleMessageViewModel, ClientMessageRedis>().ReverseMap();
         }
     }
 }

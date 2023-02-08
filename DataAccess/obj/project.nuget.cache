@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "udwyGqp43gCbSPkbMCkgn+QVyjlbiRNGYfFW7PXo4hamfqZynbQoh6enLmoVNl+ZZ0mklKsAWvS7q2ijLwCLmw==",
+  "dgSpecHash": "GzYkVUqg/xqsxt1vkSgdw/lHUCOTlzj60v+D1ZVju65WjDU7baxKjrUtFYAKZIsRc8FxfYuNMnXufF9QgT8IAQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Abobakar Sadeeq\\Documents\\GitHub\\Paen-Chat-App-server\\DataAccess\\DataAccess.csproj",
   "expectedPackageFiles": [
@@ -50,6 +50,7 @@
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\runtime.win-arm64.runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.win-arm64.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\runtime.win-x64.runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.win-x64.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\runtime.win-x86.runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",
+    "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\spanjson\\4.0.0\\spanjson.4.0.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\stackexchange.redis\\2.6.86\\stackexchange.redis.2.6.86.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\system.collections.immutable\\6.0.0\\system.collections.immutable.6.0.0.nupkg.sha512",
     "C:\\Users\\Abobakar Sadeeq\\.nuget\\packages\\system.configuration.configurationmanager\\4.7.0\\system.configuration.configurationmanager.4.7.0.nupkg.sha512",

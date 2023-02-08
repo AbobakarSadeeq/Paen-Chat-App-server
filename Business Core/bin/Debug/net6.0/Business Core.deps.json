@@ -10,7 +10,8 @@
         "dependencies": {
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "12.0.0",
           "Microsoft.AspNetCore.Http.Features": "5.0.17",
-          "Microsoft.EntityFrameworkCore": "6.0.8"
+          "Microsoft.EntityFrameworkCore": "6.0.8",
+          "SpanJson": "4.0.0"
         },
         "runtime": {
           "Business Core.dll": {}
@@ -170,6 +171,14 @@
           }
         }
       },
+      "SpanJson/4.0.0": {
+        "runtime": {
+          "lib/net6.0/SpanJson.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.0.0"
+          }
+        }
+      },
       "System.Collections.Immutable/6.0.0": {
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
@@ -301,6 +310,13 @@
       "sha512": "sha512-9+PnzmQFfEFNR9J2aDTfJGGupShHjOuGw4VUv+JB044biSHrnmCIMD+mJHmb2H7YryrfBEXDurxQ47gJZdCKNQ==",
       "path": "microsoft.extensions.primitives/6.0.0",
       "hashPath": "microsoft.extensions.primitives.6.0.0.nupkg.sha512"
+    },
+    "SpanJson/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ppFa532nDkbxYghTOA+CLVfXL3Huzb/NGlY+WMdzJWRF6WNMhXf9gQVM+7XvUrVGK7fg1pBL9q4ruo7aKH7hxg==",
+      "path": "spanjson/4.0.0",
+      "hashPath": "spanjson.4.0.0.nupkg.sha512"
     },
     "System.Collections.Immutable/6.0.0": {
       "type": "package",

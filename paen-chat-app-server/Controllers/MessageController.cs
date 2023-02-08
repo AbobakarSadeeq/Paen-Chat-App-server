@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Business_Core.Entities;
 using Business_Core.IServices;
 using DataAccess.DataContext_Class;
 using DataAccess.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -35,10 +37,12 @@ namespace paen_chat_app_server.Controllers
 
         private readonly IMessageService _messageService;
         private readonly IMapper _mapper;
-        public MessageController(IMessageService messageService, IMapper mapper)
+        private readonly IMessageRedisCacheService _redisMessageCacheService;
+        public MessageController(IMessageService messageService, IMapper mapper, IMessageRedisCacheService redisMessageCacheService)
         {
             _messageService = messageService;
             _mapper = mapper;
+            _redisMessageCacheService = redisMessageCacheService;
         }
 
         //[HttpGet]
@@ -78,46 +82,27 @@ namespace paen_chat_app_server.Controllers
 
         //    return Ok();
         //}
+        public void foo()
+        {
+            BackgroundJob.Schedule(
+                () => Console.WriteLine("Abobakar"),
+            TimeSpan.FromDays(2880)); // 2 days
+            var client = new BackgroundJobClient();
+            var connection = JobStorage.Current.GetConnection();
+            var api = JobStorage.Current.GetMonitoringApi();
 
 
-        //[HttpGet("UsingRedis")]
-        //public async Task<IActionResult> UsingRedis(ClientSingleMessageViewModel viewModel)
-        //{
-        //    //await redisCache.SetValueToRedisAsync<string>("1", "from .net"); // make the serverices for that here and register that service in DI and MS recommended to not separatly and dont use the extension method here for that
-        //    //var gettingDataFromRedis = await redisCache.GetRecordAsync<string>("1");
+        }
 
-
-        //    await _redisCacheService.SaveMessageToHash(viewModel, "GroupId4");
-
-
-        //    //var employeeDataList = new List<Employee>()
-        //    //{
-        //    //    new Employee() { Id = 1, Name = "abc", Age= 20},
-        //    //    new Employee() { Id =2, Name = "dsfgabc", Age= 20},
-        //    //    new Employee() { Id = 3, Name = "dfg", Age= 21230},
-        //    //    new Employee() { Id = 4, Name = "sdfg", Age= 2230},
-        //    //    new Employee() { Id = 5, Name = "dsfg", Age= 220},
-        //    //    new Employee() { Id = 6, Name = "dfsg", Age= 2230},
-        //    //    new Employee() { Id = 7, Name = "re", Age= 20321},
-        //    //    new Employee() { Id = 8, Name = "tretwrt", Age= 202},
-        //    //};
-
-        //    //var conertingToJsonString = JsonSerializer.Serialize(employeeDataList);
-        //    //JArray rss = JArray.Parse(conertingToJsonString);
-        //    //var newEmployee = new Employee() { Id = 9, Name = "Abobakar", Age = 10 };
-        //    //var convertSingleObjToJson = JsonSerializer.Serialize(newEmployee);
-        //    //rss.Add(convertSingleObjToJson);
-
-        //    //var convertAgain = rss.ToString();
-
-
-        //    //var convertingToEmployeesListNormal = JsonSerializer.Deserialize<List<Employee>>(convertAgain);
-        //    // var addingAnotherEmployeeToString = J
-
-
-
-        //    return Ok();
-        //}
+        [HttpGet("UsingRedis")]
+        public async Task<IActionResult> UsingRedis(ClientSingleMessageViewModel viewModel)
+        {
+            
+            var convertToEntity = _mapper.Map<ClientMessageRedis>(viewModel);
+            await _redisMessageCacheService.SaveMessageToHash(convertToEntity, viewModel.ConnectionGroupId);
+            // await _redisMessageCacheService.ReadingCacheData();
+            return Ok();
+        }
 
 
 

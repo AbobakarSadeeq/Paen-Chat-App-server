@@ -13,7 +13,6 @@ using Presentation.AutoMapper;
 using StackExchange.Redis;
 using System.Text;
 using SpanJson;
-using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
@@ -59,9 +58,7 @@ builder.Services.AddAutoMapper(typeof(AutoMap));
 var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisDbConnectionString"));
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
-builder.Services.AddHangfire(configuration => {
-    configuration.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")); // hangfire need a storage to store its own data so give your sql database or anything you want to give.
-});
+
 
 // services registeration
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -88,7 +85,6 @@ builder.Services.AddSignalR();
 builder.Services.AddControllers();
 
 var app = builder.Build();
-app.UseHangfireServer();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

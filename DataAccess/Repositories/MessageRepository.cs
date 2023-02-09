@@ -1,4 +1,5 @@
-﻿using Business_Core.IRepositories;
+﻿using Business_Core.Entities;
+using Business_Core.IRepositories;
 using DataAccess.DataContext_Class;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,11 @@ namespace DataAccess.Repositories
         {
             _dataContext = dataContext;
             
+        }
+
+        public async Task StoringUsersMessages(List<Message> messages)
+        {
+            await _dataContext.Messages.AddRangeAsync(messages);
         }
     }
 }

@@ -3,7 +3,6 @@ using Business_Core.Entities;
 using Business_Core.IServices;
 using DataAccess.DataContext_Class;
 using DataAccess.Services;
-using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -82,24 +81,30 @@ namespace paen_chat_app_server.Controllers
 
         //    return Ok();
         //}
-        public void foo()
+
+        [HttpPost]
+        public async Task<IActionResult> StoringMessage(ClientSingleMessageViewModel clientMessageViewModel)
         {
-            BackgroundJob.Schedule(
-                () => Console.WriteLine("Abobakar"),
-            TimeSpan.FromDays(2880)); // 2 days
-            var client = new BackgroundJobClient();
-            var connection = JobStorage.Current.GetConnection();
-            var api = JobStorage.Current.GetMonitoringApi();
+            var storingMessagesToHash = await _redisMessageCacheService.SaveMessageToHashAsync(clientMessageViewModel.clientMessageRedis, clientMessageViewModel.GroupId);
+            // above line is storing data in db after 2 days passed.
+            // above line storing data in recently message hash in redis.
+            // above line stroing data in userAllMessages hash in redis.
+            // above line is making the hash empty of recentlyMessage when it is stored inside the userAllMessages hash in redis.
+            if(storingMessagesToHash.Count > 0)
+            {
+                await _messageService.StoringUsersMessagesAsync(storingMessagesToHash);
+            }
 
-
+            return Ok();
         }
+      
 
         [HttpGet("UsingRedis")]
         public async Task<IActionResult> UsingRedis(ClientSingleMessageViewModel viewModel)
         {
             
             var convertToEntity = _mapper.Map<ClientMessageRedis>(viewModel);
-            await _redisMessageCacheService.SaveMessageToHash(convertToEntity, viewModel.ConnectionGroupId);
+          //  await _redisMessageCacheService.SaveMessageToHashAsync(convertToEntity, viewModel.ConnectionGroupId);
             // await _redisMessageCacheService.ReadingCacheData();
             return Ok();
         }

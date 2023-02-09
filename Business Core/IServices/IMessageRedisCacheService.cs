@@ -9,8 +9,7 @@ namespace Business_Core.IServices
 {
     public interface IMessageRedisCacheService
     {
-        Task SaveMessageToHash(ClientMessageRedis message, string groupId);
-        Task SaveMessagesToDb();
+        Task<List<Message>> SaveMessageToHashAsync(ClientMessageRedis message, string groupId);
         Task GetSingleUserAllConnectedWithUsers();
        
     }

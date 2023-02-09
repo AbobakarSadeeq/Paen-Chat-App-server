@@ -2,7 +2,6 @@
 using Business_Core.IServices;
 using StackExchange.Redis;
 using SpanJson;
-using Hangfire;
 
 namespace DataAccess.Services
 {
@@ -13,38 +12,12 @@ namespace DataAccess.Services
         {
             _redis = redis;
         }
-
-        private async Task CreateHashesInRedisAsync()
-        {
-            var redisDb = _redis.GetDatabase();
-            if(await redisDb.HashLengthAsync("RecentlyUsersMessagesStorage") == 0) // hlen == O(1)
-            {
-                HashEntry[] insertDataToRedisHash = {
-                   new HashEntry("CreateHash", "Default Value")
-                };
-                await redisDb.HashSetAsync("RecentlyUsersMessagesStorage", insertDataToRedisHash);
-            }
-
-            if (await redisDb.HashLengthAsync("UsersAllMessagesDataStorage") == 0) // hlen == O(1)
-            {
-                HashEntry[] insertDataToRedisHash = {
-                   new HashEntry("CreateHash", "Default Value")
-                };
-                await redisDb.HashSetAsync("UsersAllMessagesDataStorage", insertDataToRedisHash);
-            }
-
-            if(redisDb.StringGet("ShiftingNewMessageDataTimeSpan").IsNull)
-            {
-                await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", DateTime.Today.ToString("d"));
-            }
-        }
-
       
 
-        public async Task SaveMessageToHash(ClientMessageRedis clientMessage, string groupId)
+        public async Task<List<Message>> SaveMessageToHashAsync(ClientMessageRedis clientMessage, string groupId)
         {
-            await CreateHashesInRedisAsync();
             var redisDb = _redis.GetDatabase();
+            await CreateHashesInRedisAsync(redisDb);
             var getGroupIdData = await redisDb.HashGetAsync("RecentlyUsersMessagesStorage", groupId);
 
 
@@ -67,10 +40,12 @@ namespace DataAccess.Services
             if(currentDate == fetchingMessagesShiftingDateTime)
             {
                 var assigningNewDate = DateTime.Parse(fetchingMessagesShiftingDateTime.ToString()).AddDays(2).ToString("d");
-              //  await AddRecentlyMessagesHashToUsersAllMessagesStorageHashAsync();
                 await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", assigningNewDate.ToString());
+                return  await AddRecentlyMessagesHashToUsersAllMessagesStorageHashAsync(redisDb);
 
             }
+
+            return new List<Message>();
 
 
         }
@@ -107,14 +82,33 @@ namespace DataAccess.Services
             string aa = "sad";
         }
 
+        // below algorithms thats calling on upper methods
+        private async Task CreateHashesInRedisAsync(IDatabase redisDb)
+        {
+            if(await redisDb.HashLengthAsync("RecentlyUsersMessagesStorage") == 0) // hlen == O(1)
+            {
+                HashEntry[] insertDataToRedisHash = {
+                   new HashEntry("CreateHash", "Default Value")
+                };
+                await redisDb.HashSetAsync("RecentlyUsersMessagesStorage", insertDataToRedisHash);
+                await redisDb.HashDeleteAsync("RecentlyUsersMessagesStorage", "CreateHash"); // the hash will became empty now.
+            }
 
+            if (await redisDb.HashLengthAsync("UsersAllMessagesDataStorage") == 0) // hlen == O(1)
+            {
+                HashEntry[] insertDataToRedisHash = {
+                   new HashEntry("CreateHash", "Default Value")
+                };
+                await redisDb.HashSetAsync("UsersAllMessagesDataStorage", insertDataToRedisHash);
+                await redisDb.HashDeleteAsync("UsersAllMessagesDataStorage", "CreateHash"); // the hash will became empty now.
 
-        //private string ConvertingObjectToString(ClientMessageRedis singleMessage)
-        //{
-        //    var convertingObject = JsonSerializer.Generic.Utf16.Serialize(singleMessage);
+            }
 
-        //    return convertingObject;
-        //}
+            if (redisDb.StringGet("ShiftingNewMessageDataTimeSpan").IsNull)
+            {
+                await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", DateTime.Today.ToString("d"));
+            }
+        }
 
         private string ConvertingMultipleObjectsToString(List<ClientMessageRedis> usersMessagesList)
         {
@@ -125,17 +119,6 @@ namespace DataAccess.Services
             return convertingObject;
         }
 
-
-
-        //private ClientMessageRedis ConvertingSingleStringObjectToObject(string singleMessage)
-        //{
-        //    if (singleMessage == null)
-        //        return new ClientMessageRedis();
-
-        //    var convertingString = JsonSerializer.Deserialize<ClientMessageRedis>(singleMessage);
-        //    return convertingString;
-        //}
-
         private List<ClientMessageRedis> ConvertingStringToObjects(string multipleMessages)
         {
             if (multipleMessages == null)
@@ -145,38 +128,36 @@ namespace DataAccess.Services
             return convertingString;
         }
 
-        public async Task SaveMessagesToDb()
+        private async Task<List<Message>> AddRecentlyMessagesHashToUsersAllMessagesStorageHashAsync(IDatabase selectingDb) // Idatabse
         {
-            // get all inside keys in hash for when storing data in hash
-            var db = _redis.GetDatabase();
-            var getAllKeys = await db.HashKeysAsync("RecentlyUsersMessagesStorage");
-            // make repository for database
-            // store all keys only value in database
-            // use hangfire before 1 minute of remove data from redis
-        }
 
-        // cron
-        // when 2 days past then add or messages to usersAllMessagesStorage hash where all users messages is stored
-        // now to install the hangfire in this project and apply the timeing on in it
-        // store that new message on db as well
-        // store that in oldMessages as well in redis.
-        // then delete it inside the redis as well when its completed.
-        private async Task AddRecentlyMessagesHashToUsersAllMessagesStorageHashAsync()
-        {
-          
             // get the recently data first
-            var selectingDb = _redis.GetDatabase();
+            List<Message> RecentlyNewAllConversationMessagesForStoreInDb = new List<Message>(); // => this list is going to send or store data on db and that will be sended to message service.
+
+            // no send this message to db this is tasksss!!!!!
             var getRecentlyAllUsersMessages = await selectingDb.HashKeysAsync("RecentlyUsersMessagesStorage");
             foreach (var singleConversationGroupKey in getRecentlyAllUsersMessages)
             {
+
                 var getSingleConversationAllNewMessagesData = await selectingDb.HashGetAsync("RecentlyUsersMessagesStorage", singleConversationGroupKey);
+
+                List<Message> singleConversationNewMessages = ConvertRedisStoreSingleMessageIntoDbMessage(getSingleConversationAllNewMessagesData);
+
+                RecentlyNewAllConversationMessagesForStoreInDb.AddRange(singleConversationNewMessages);
+
                  await StoringAllSingleConversationMessagesToStorageHashRedisAsync(selectingDb, singleConversationGroupKey, getSingleConversationAllNewMessagesData);
 
+                await DeleteSingleConversationRecentlyUsersMessageStorageFromRedisHash(singleConversationGroupKey, selectingDb);
+
             }
+
+
+            return RecentlyNewAllConversationMessagesForStoreInDb;
             // loop through on recently data
 
         }
 
+        // store that in oldMessages as well in redis. => done
         private async Task StoringAllSingleConversationMessagesToStorageHashRedisAsync(IDatabase redisDatabase, string conversationGroupIdKey, string allRecentMessagesOfSingleConversation)
         {
             var fetchAllStoredMessagesOfSingleConversation = await redisDatabase.HashGetAsync("UsersAllMessagesDataStorage", conversationGroupIdKey);
@@ -196,6 +177,35 @@ namespace DataAccess.Services
 
             };
             await redisDatabase.HashSetAsync("UsersAllMessagesDataStorage", NewConversationMessagesOfSingleUser);
+        }
+
+        // then delete it inside the redis as well when its completed. => done
+        private async Task DeleteSingleConversationRecentlyUsersMessageStorageFromRedisHash(string conversationGroupId, IDatabase redisDatabase)
+        {
+            await redisDatabase.HashDeleteAsync("RecentlyUsersMessagesStorage", conversationGroupId);
+        }
+
+        // store that new message on db as well => done
+        private List<Message> ConvertRedisStoreSingleMessageIntoDbMessage(string singleConversationAllNewMessage)
+        {
+            var convertStringIntoRedisMessageFormate = ConvertingStringToObjects(singleConversationAllNewMessage);
+
+            List<Message> RecentlyNewMessagesOfSingleConversation = new List<Message>();
+
+            foreach (var clientMessageRedis in convertStringIntoRedisMessageFormate)
+            {
+                Message singleMessage = new Message
+                {
+                    SenderId = clientMessageRedis.SenderId,
+                    ReciverId = clientMessageRedis.ReceiverId,
+                    UserMessage = clientMessageRedis.UserMessage,
+                    MessageSeen = clientMessageRedis.MessageSeen,
+                    Created_At = DateTime.Parse(clientMessageRedis.MessageDateStamp + " " + clientMessageRedis.MessageTimeStamp)
+                };
+                RecentlyNewMessagesOfSingleConversation.Add(singleMessage);
+            }
+           
+            return RecentlyNewMessagesOfSingleConversation;
         }
     }
 }

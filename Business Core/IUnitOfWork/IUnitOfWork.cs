@@ -11,6 +11,7 @@ namespace Business_Core.IUnitOfWork
     {
         public IContactRepository _contactRepository { get; }
         public IUserRepository _userRepository { get; }
+        public IMessageRepository _messageRepository { get; }
 
         Task<int> CommitAsync();
         void Dispose();

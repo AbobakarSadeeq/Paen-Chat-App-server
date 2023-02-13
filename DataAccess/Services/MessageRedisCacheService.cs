@@ -2,17 +2,20 @@
 using Business_Core.IServices;
 using StackExchange.Redis;
 using SpanJson;
+using Presentation.ViewModel.Messages;
 
 namespace DataAccess.Services
 {
+   
     public class MessageRedisCacheService : IMessageRedisCacheService
     {
+
         private readonly IConnectionMultiplexer _redis;
         public MessageRedisCacheService(IConnectionMultiplexer redis)
         {
             _redis = redis;
+           
         }
-      
 
         public async Task<List<Message>> SaveMessageToHashAsync(ClientMessageRedis clientMessage, string groupId)
         {
@@ -41,7 +44,7 @@ namespace DataAccess.Services
             {
                 var assigningNewDate = DateTime.Parse(fetchingMessagesShiftingDateTime.ToString()).AddDays(2).ToString("d");
                 await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", assigningNewDate.ToString());
-                return  await AddRecentlyMessagesHashToUsersAllMessagesStorageHashAsync(redisDb);
+                return await AddRecentlyMessagesHashToUsersAllMessagesStorageHashAsync(redisDb);
 
             }
             return new List<Message>();
@@ -49,7 +52,7 @@ namespace DataAccess.Services
 
         }
 
-        // below algorithms thats calling on upper methods
+        // below algorithms thats called on upper methods
         private async Task CreateHashesAndAssignTimeSpanForUpdatingStoragesInRedisAsync(IDatabase redisDb)
         {
             if(await redisDb.HashLengthAsync("RecentlyUsersMessagesStorage") == 0) // hlen == O(1)
@@ -93,7 +96,6 @@ namespace DataAccess.Services
             var convertingObject = JsonSerializer.Generic.Utf16.Serialize(usersMessagesList);
             return convertingObject;
         }
-
 
         private async Task<List<Message>> AddRecentlyMessagesHashToUsersAllMessagesStorageHashAsync(IDatabase selectingDb)
         {
@@ -167,6 +169,152 @@ namespace DataAccess.Services
         private async Task DeleteSingleConversationRecentlyUsersMessageFromRedisHashStorage(string conversationGroupId, IDatabase redisDatabase)
         {
             await redisDatabase.HashDeleteAsync("RecentlyUsersMessagesStorage", conversationGroupId);
+        }
+
+        public async Task<object> FetchingSingleConversationUsersMessages(int currentScrollMessangeNumber, int fetchingMessagesStorageNo, string groupId)
+        {
+            var redisDb = _redis.GetDatabase();
+
+            // recentlyUserMessagesRedis
+            if (fetchingMessagesStorageNo == 1) // fetching data from recentlyUserMessageStorageRedis
+            {
+
+            var recentlyUserRedisMessagesStorageList = await GetMessagesFromRecentlyUserMessageStorageRedisAsync(redisDb, groupId, currentScrollMessangeNumber);
+                if (recentlyUserRedisMessagesStorageList != null)
+                {
+                     var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(recentlyUserRedisMessagesStorageList, fetchingMessagesStorageNo);
+                    if(recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
+                    {
+                        return recentlyRedisStorageMessages;
+                    }
+
+                    fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 2 here
+                    
+                }
+
+                
+            }
+            // tommarow
+            // userStorageMessageRedis
+            if(fetchingMessagesStorageNo == 2)
+            {
+                var fetchingDataFromUserMessageStorageRedis = await GetMessagesFromUserMessagesStorageRedisAsync(redisDb, groupId, currentScrollMessangeNumber);
+                if (fetchingDataFromUserMessageStorageRedis != null)
+                {
+                    if (fetchingDataFromUserMessageStorageRedis.Count == 30)
+                    { // if full 30 completed then return it it all and dont do anything.
+                        return new
+                        {
+                            recentlyUserRedisMessagesStorageList = fetchingDataFromUserMessageStorageRedis,
+                            fetchingMessagesStorageNo = fetchingMessagesStorageNo
+                        };
+                    }
+
+                    if (fetchingDataFromUserMessageStorageRedis.Count > 0)
+                    {
+                        fetchingMessagesStorageNo = 3; // if less and not having more then return that all data then goto next storage, and again fetching then fetching it from other storage.
+                        return new
+                        {
+                            recentlyUserRedisMessagesStorageList = fetchingDataFromUserMessageStorageRedis,
+                            fetchingMessagesStorageNo = fetchingMessagesStorageNo
+                        };
+
+                    }
+
+
+                    if (fetchingDataFromUserMessageStorageRedis.Count == 0)
+                    { // if completely 0 then goto next storage for fetching.
+                        fetchingMessagesStorageNo = 3;
+
+                    }
+                }
+
+                // if become null then goto userMessageRedis and if not null even 1 messages there found then return it and then again user need to click on load more message button to fetch more.
+
+
+
+
+            }
+
+            // fetching Data from db.
+            if (fetchingMessagesStorageNo == 3)
+            {
+
+            }
+        }
+
+        private async Task<List<ClientMessageRedis>> GetMessagesFromRecentlyUserMessageStorageRedisAsync(IDatabase redisDatabase, string groupId, int scrollCurrentNumber)
+        {
+            var findingMessagesOnRecentlyRedisStorageByGroupId = await redisDatabase.HashGetAsync("RecentlyUsersMessagesStorage", groupId);
+            var deserializingJsonMessageStackObjects = ConvertingStringToStackObjects(findingMessagesOnRecentlyRedisStorageByGroupId);
+            var fetchingMessagingStack = TakeAndSkipMessagesBasedOnScrollNumber(deserializingJsonMessageStackObjects, scrollCurrentNumber);
+            return fetchingMessagingStack;
+        }
+
+       
+
+        private async Task<List<ClientMessageRedis>> GetMessagesFromUserMessagesStorageRedisAsync(IDatabase redisDatabase, string groupId, int scrollCurrentNumber)
+        {
+            var findingMessagesOnUsersRedisStorageMessagesByGroupId = await redisDatabase.HashGetAsync("UsersAllMessagesDataStorage", groupId);
+            var deserializingJsonMessageStackObjects = ConvertingStringToStackObjects(findingMessagesOnUsersRedisStorageMessagesByGroupId);
+            var fetchingMessagingStack = TakeAndSkipMessagesBasedOnScrollNumber(deserializingJsonMessageStackObjects, scrollCurrentNumber);
+            return fetchingMessagingStack;
+        }
+
+
+        private Stack<ClientMessageRedis> ConvertingStringToStackObjects(string multipleMessages)
+        {
+            if (multipleMessages == null)
+                return new Stack<ClientMessageRedis>();
+
+            var convertingStringToStackObjectsList = JsonSerializer.Generic.Utf16.Deserialize<Stack<ClientMessageRedis>>(multipleMessages);
+            return convertingStringToStackObjectsList;
+        }
+
+
+        private List<ClientMessageRedis> TakeAndSkipMessagesBasedOnScrollNumber(Stack<ClientMessageRedis> clientMessageStack, int currentNumberScroll)
+        {
+            if (currentNumberScroll == 1)
+            {
+                return clientMessageStack.Take(30).ToList(); // it will take last 30 because of stack
+            }
+            else
+            {
+                var takeAndSkipMessagesFromList = clientMessageStack.Skip((currentNumberScroll - 1) * 30).Take(30); // skip based on scroll and multiple with 30 and then take 30.
+                return takeAndSkipMessagesFromList.ToList();
+
+            }
+        }
+
+       private FetchingMessagesForUserViewModel SwitchingBetweenRedisStoragesIfNeededAndDb(List<ClientMessageRedis> messageList, int fetchingMessagesStorageNo)
+        {
+            if (messageList.Count == 30)
+            { // if full 30 completed then return it it all and dont do anything.
+                return new FetchingMessagesForUserViewModel 
+                {
+                    FetchedMessagesList = messageList,
+                    FetchingMessagesStorageNo = fetchingMessagesStorageNo
+                };
+            }
+
+            if (messageList.Count > 0)
+            {
+                 // if less and not having more then return that all data then goto next storage, and again fetching then fetching it from other storage.
+                return new FetchingMessagesForUserViewModel 
+                {
+                    FetchedMessagesList = messageList,
+                    FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
+                };
+
+            }
+
+
+             // if completely 0 then goto next storage for fetching.
+                return new FetchingMessagesForUserViewModel 
+                {
+                    FetchedMessagesList = messageList,
+                    FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
+                };
         }
 
     }

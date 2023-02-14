@@ -10,5 +10,6 @@ namespace Business_Core.IServices
     public interface IMessageService
     {
         Task StoringUsersMessagesAsync(List<Message> usersAllMessagesList);
+        Task<List<Message>> GetSingleConversationMessagesAllListAsync(int user1, int user2);
     }
 }

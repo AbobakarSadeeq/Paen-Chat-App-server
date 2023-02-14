@@ -10,5 +10,6 @@ namespace Business_Core.IRepositories
     public interface IMessageRepository
     {
         Task StoringUsersMessages(List<Message> messages);
+        Task<List<Message>> FetchingSingleConversationAllMessagesAsync(int user1, int user2);
     }
 }

@@ -17,6 +17,13 @@ namespace DataAccess.Services
         {
             _unitOfWork = unitOfWork;
         }
+
+        public async Task<List<Message>> GetSingleConversationMessagesAllListAsync(int user1, int user2)
+        {
+            return await _unitOfWork._messageRepository.FetchingSingleConversationAllMessagesAsync(user1, user2);
+            
+        }
+
         public async Task StoringUsersMessagesAsync(List<Message> usersAllMessagesList)
         {
             await _unitOfWork._messageRepository.StoringUsersMessages(usersAllMessagesList);

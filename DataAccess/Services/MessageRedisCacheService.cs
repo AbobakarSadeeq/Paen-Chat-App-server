@@ -3,6 +3,7 @@ using Business_Core.IServices;
 using StackExchange.Redis;
 using SpanJson;
 using Presentation.ViewModel.Messages;
+using DataAccess.FunctionsParametersClasses;
 
 namespace DataAccess.Services
 {
@@ -11,10 +12,14 @@ namespace DataAccess.Services
     {
 
         private readonly IConnectionMultiplexer _redis;
-        public MessageRedisCacheService(IConnectionMultiplexer redis)
+        private readonly IMessageService _messageService;
+
+        public MessageRedisCacheService(IConnectionMultiplexer redis, IMessageService messageService)
         {
             _redis = redis;
-           
+            _messageService = messageService;
+
+
         }
 
         public async Task<List<Message>> SaveMessageToHashAsync(ClientMessageRedis clientMessage, string groupId)
@@ -132,7 +137,7 @@ namespace DataAccess.Services
                 Message singleMessage = new Message
                 {
                     SenderId = clientMessageRedis.SenderId,
-                    ReciverId = clientMessageRedis.ReceiverId,
+                    ReceiverId = clientMessageRedis.ReceiverId,
                     UserMessage = clientMessageRedis.UserMessage,
                     MessageSeen = clientMessageRedis.MessageSeen,
                     Created_At = DateTime.Parse(clientMessageRedis.MessageDateStamp + " " + clientMessageRedis.MessageTimeStamp)
@@ -171,76 +176,57 @@ namespace DataAccess.Services
             await redisDatabase.HashDeleteAsync("RecentlyUsersMessagesStorage", conversationGroupId);
         }
 
-        public async Task<object> FetchingSingleConversationUsersMessages(int currentScrollMessangeNumber, int fetchingMessagesStorageNo, string groupId)
+        public async Task<object> FetchingSingleConversationUsersMessages(SingleConversationMessagesParams funcParams)
         {
             var redisDb = _redis.GetDatabase();
 
-            // recentlyUserMessagesRedis
-            if (fetchingMessagesStorageNo == 1) // fetching data from recentlyUserMessageStorageRedis
+            // recentlyUserMessagesRedis in redis
+            if (funcParams.fetchingMessagesStorageNo == 1) // fetching data from recentlyUserMessageStorageRedis
             {
-
-            var recentlyUserRedisMessagesStorageList = await GetMessagesFromRecentlyUserMessageStorageRedisAsync(redisDb, groupId, currentScrollMessangeNumber);
+                var recentlyUserRedisMessagesStorageList = await GetMessagesFromRecentlyUserMessageStorageRedisAsync(redisDb, funcParams.groupId, funcParams.currentScrollMessangeNumber);
                 if (recentlyUserRedisMessagesStorageList != null)
                 {
-                     var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(recentlyUserRedisMessagesStorageList, fetchingMessagesStorageNo);
-                    if(recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
+                    var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(recentlyUserRedisMessagesStorageList, funcParams.fetchingMessagesStorageNo);
+                    if (recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
                     {
                         return recentlyRedisStorageMessages;
                     }
 
-                    fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 2 here
-                    
+                    funcParams.fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 2 here
+
                 }
 
-                
+
+
+
             }
-            // tommarow
-            // userStorageMessageRedis
-            if(fetchingMessagesStorageNo == 2)
+
+            // userStorageMessageRedis in redis
+            if (funcParams.fetchingMessagesStorageNo == 2)
             {
-                var fetchingDataFromUserMessageStorageRedis = await GetMessagesFromUserMessagesStorageRedisAsync(redisDb, groupId, currentScrollMessangeNumber);
+                var fetchingDataFromUserMessageStorageRedis = await GetMessagesFromUserMessagesStorageRedisAsync(redisDb, funcParams.groupId, funcParams.currentScrollMessangeNumber);
+
                 if (fetchingDataFromUserMessageStorageRedis != null)
                 {
-                    if (fetchingDataFromUserMessageStorageRedis.Count == 30)
-                    { // if full 30 completed then return it it all and dont do anything.
-                        return new
-                        {
-                            recentlyUserRedisMessagesStorageList = fetchingDataFromUserMessageStorageRedis,
-                            fetchingMessagesStorageNo = fetchingMessagesStorageNo
-                        };
-                    }
-
-                    if (fetchingDataFromUserMessageStorageRedis.Count > 0)
+                    var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(fetchingDataFromUserMessageStorageRedis, funcParams.fetchingMessagesStorageNo);
+                    if (recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
                     {
-                        fetchingMessagesStorageNo = 3; // if less and not having more then return that all data then goto next storage, and again fetching then fetching it from other storage.
-                        return new
-                        {
-                            recentlyUserRedisMessagesStorageList = fetchingDataFromUserMessageStorageRedis,
-                            fetchingMessagesStorageNo = fetchingMessagesStorageNo
-                        };
-
+                        return recentlyRedisStorageMessages;
                     }
 
-
-                    if (fetchingDataFromUserMessageStorageRedis.Count == 0)
-                    { // if completely 0 then goto next storage for fetching.
-                        fetchingMessagesStorageNo = 3;
-
-                    }
+                    funcParams.fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 3 here
                 }
-
-                // if become null then goto userMessageRedis and if not null even 1 messages there found then return it and then again user need to click on load more message button to fetch more.
-
-
-
-
             }
 
-            // fetching Data from db.
-            if (fetchingMessagesStorageNo == 3)
+            // fetching Data from db 
+            if (funcParams.fetchingMessagesStorageNo == 3)
             {
+               var fetchingSingleConversationAllMessagesFromDb = await _messageService.GetSingleConversationMessagesAllListAsync(funcParams.user1, funcParams.user2);
+                // now store it in userMessagesStorageRedis.
 
             }
+
+
         }
 
         private async Task<List<ClientMessageRedis>> GetMessagesFromRecentlyUserMessageStorageRedisAsync(IDatabase redisDatabase, string groupId, int scrollCurrentNumber)
@@ -286,7 +272,7 @@ namespace DataAccess.Services
             }
         }
 
-       private FetchingMessagesForUserViewModel SwitchingBetweenRedisStoragesIfNeededAndDb(List<ClientMessageRedis> messageList, int fetchingMessagesStorageNo)
+        private FetchingMessagesForUserViewModel SwitchingBetweenRedisStoragesIfNeededAndDb(List<ClientMessageRedis> messageList, int fetchingMessagesStorageNo)
         {
             if (messageList.Count == 30)
             { // if full 30 completed then return it it all and dont do anything.
@@ -317,5 +303,6 @@ namespace DataAccess.Services
                 };
         }
 
+      
     }
 }

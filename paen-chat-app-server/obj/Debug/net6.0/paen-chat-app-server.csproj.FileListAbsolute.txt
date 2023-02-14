@@ -123,7 +123,6 @@ C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-ser
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\paen-chat-app-server.AssemblyInfoInputs.cache
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\paen-chat-app-server.AssemblyInfo.cs
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\paen-chat-app-server.csproj.CoreCompileInputs.cache
-C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\paen-chat-app-server.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\paen-chat-app-server.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\staticwebassets.build.json
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\staticwebassets.development.json
@@ -164,3 +163,4 @@ C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-ser
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Business Core.dll
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Business Core.pdb
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\SpanJson.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\paen-chat-app-server.MvcApplicationPartsAssemblyInfo.cs

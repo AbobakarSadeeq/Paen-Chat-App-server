@@ -154,8 +154,8 @@ namespace DataAccess.Repositories
             {
                 var findingSingleContactAllMessages = _DataContext.Messages
                     .Include(a => a.MessageAttachments)
-                    .Where(a => (a.SenderId == userId && a.ReciverId == singleContact.UsersConnectedId) ||
-                    (a.SenderId == singleContact.UsersConnectedId && a.ReciverId == userId))
+                    .Where(a => (a.SenderId == userId && a.ReceiverId == singleContact.UsersConnectedId) ||
+                    (a.SenderId == singleContact.UsersConnectedId && a.ReceiverId == userId))
                     .ToList();
                 if (findingSingleContactAllMessages != null)
                 {

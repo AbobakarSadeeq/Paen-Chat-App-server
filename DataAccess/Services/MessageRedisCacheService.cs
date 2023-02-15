@@ -176,11 +176,12 @@ namespace DataAccess.Services
             await redisDatabase.HashDeleteAsync("RecentlyUsersMessagesStorage", conversationGroupId);
         }
 
-        public async Task<object> FetchingSingleConversationUsersMessages(SingleConversationMessagesParams funcParams)
+        public async Task<FetchingMessagesForUserViewModel> FetchingSingleConversationUsersMessages(SingleConversationMessagesParams funcParams)
         {
             var redisDb = _redis.GetDatabase();
 
             // recentlyUserMessagesRedis in redis
+            // from client the fetchingMEssagesStorageNo will be change because if data
             if (funcParams.fetchingMessagesStorageNo == 1) // fetching data from recentlyUserMessageStorageRedis
             {
                 var recentlyUserRedisMessagesStorageList = await GetMessagesFromRecentlyUserMessageStorageRedisAsync(redisDb, funcParams.groupId, funcParams.currentScrollMessangeNumber);
@@ -222,12 +223,38 @@ namespace DataAccess.Services
             if (funcParams.fetchingMessagesStorageNo == 3)
             {
                var fetchingSingleConversationAllMessagesFromDb = await _messageService.GetSingleConversationMessagesAllListAsync(funcParams.user1, funcParams.user2);
-                // now store it in userMessagesStorageRedis.
+
+               await StroingSingleConversationAllMessagesOfDbOnUserMessageStorageRedisAsync(fetchingSingleConversationAllMessagesFromDb, redisDb, funcParams.groupId); // CORRECT
+
+                var fetchingMessagesFromDbList = fetchingSingleConversationAllMessagesFromDb.Skip(funcParams.currentScrollMessangeNumber - 1).Take(30).ToList(); // CORRECT
+
+                var convertingMessageDbToRedisMessageFormate = ConvertingDbMessagesFormateIntoRedisStorageMessageFormate(fetchingMessagesFromDbList); // CORRECT
+
+                convertingMessageDbToRedisMessageFormate.Reverse(); // CORRECT
+
+                if (convertingMessageDbToRedisMessageFormate.Count < 30 || convertingMessageDbToRedisMessageFormate.Count == 0)  // CORRECT
+                {
+                    return new FetchingMessagesForUserViewModel // CORRECT
+                    {
+                        FetchedMessagesList = convertingMessageDbToRedisMessageFormate, // convert messages into ClientMessagesRedis tommarow
+                        FetchingMessagesStorageNo = -1, // it means all data is completed and no data is found in messages storage to return prevs messages.
+                    };
+                }
+
+
+                return new FetchingMessagesForUserViewModel // CORRECT
+                {
+                    FetchedMessagesList = convertingMessageDbToRedisMessageFormate, // convert messages into ClientMessagesRedis tommarow
+                    FetchingMessagesStorageNo = 2, // if it completed 30 return then next messages fetching will be from redis again and not from db request again.
+                };
 
             }
 
-
+            return  new FetchingMessagesForUserViewModel();
         }
+
+
+
 
         private async Task<List<ClientMessageRedis>> GetMessagesFromRecentlyUserMessageStorageRedisAsync(IDatabase redisDatabase, string groupId, int scrollCurrentNumber)
         {
@@ -272,11 +299,42 @@ namespace DataAccess.Services
             }
         }
 
+        private List<ClientMessageRedis> ConvertingDbMessagesFormateIntoRedisStorageMessageFormate(List<Message> singleConversationMessages)
+        {
+            List<ClientMessageRedis> redisMessages = new List<ClientMessageRedis>();
+            foreach (var singleMessage in singleConversationMessages)
+            {
+                redisMessages.Add(new ClientMessageRedis
+                {
+                    UserMessage = singleMessage.UserMessage,
+                    SenderId = singleMessage.SenderId,
+                    ReceiverId = singleMessage.ReceiverId,
+                    MessageSeen = singleMessage.MessageSeen,
+                    MessageTimeStamp = singleMessage.Created_At.Value.TimeOfDay.ToString(),
+                    MessageDateStamp = singleMessage.Created_At.Value.Date.ToString(),
+                });
+            }
+
+            return redisMessages;
+        }
+
+        private async Task StroingSingleConversationAllMessagesOfDbOnUserMessageStorageRedisAsync(List<Message> allMessagesOfSingleConversationFromDb, IDatabase redisDb, string groupId)
+        {
+            var singleConversationAllMessagesRedisFormate = ConvertingDbMessagesFormateIntoRedisStorageMessageFormate(allMessagesOfSingleConversationFromDb);
+            var convertingObjectsToString = ConvertingMultipleObjectsToString(singleConversationAllMessagesRedisFormate);
+            HashEntry[] NewConversationMessagesOfSingleUser = {
+
+                new HashEntry(groupId, convertingObjectsToString),
+
+                 };
+            await redisDb.HashSetAsync("UsersAllMessagesDataStorage", NewConversationMessagesOfSingleUser);
+        }
+
         private FetchingMessagesForUserViewModel SwitchingBetweenRedisStoragesIfNeededAndDb(List<ClientMessageRedis> messageList, int fetchingMessagesStorageNo)
         {
             if (messageList.Count == 30)
             { // if full 30 completed then return it it all and dont do anything.
-                return new FetchingMessagesForUserViewModel 
+                return new FetchingMessagesForUserViewModel
                 {
                     FetchedMessagesList = messageList,
                     FetchingMessagesStorageNo = fetchingMessagesStorageNo
@@ -285,8 +343,8 @@ namespace DataAccess.Services
 
             if (messageList.Count > 0)
             {
-                 // if less and not having more then return that all data then goto next storage, and again fetching then fetching it from other storage.
-                return new FetchingMessagesForUserViewModel 
+                // if less and not having more then return that all data then goto next storage, and again fetching then fetching it from other storage.
+                return new FetchingMessagesForUserViewModel
                 {
                     FetchedMessagesList = messageList,
                     FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
@@ -295,14 +353,14 @@ namespace DataAccess.Services
             }
 
 
-             // if completely 0 then goto next storage for fetching.
-                return new FetchingMessagesForUserViewModel 
-                {
-                    FetchedMessagesList = messageList,
-                    FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
-                };
+            // if completely 0 then goto next storage for fetching.
+            return new FetchingMessagesForUserViewModel
+            {
+                FetchedMessagesList = messageList,
+                FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
+            };
         }
 
-      
+
     }
 }

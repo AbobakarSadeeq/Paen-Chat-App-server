@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.FunctionsParametersClasses
+namespace Business_Core.FunctionParametersClasses
 {
     public class SingleConversationMessagesParams
     {

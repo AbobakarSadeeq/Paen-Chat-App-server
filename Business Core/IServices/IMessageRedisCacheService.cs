@@ -1,15 +1,13 @@
 ﻿using Business_Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Business_Core.FunctionParametersClasses;
+using Business_Core.Some_Data_Classes;
 
 namespace Business_Core.IServices
 {
     public interface IMessageRedisCacheService
     {
         Task<List<Message>> SaveMessageToHashAsync(ClientMessageRedis message, string groupId);
-       
+        Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedis(SingleConversationMessagesParams funcParams);
+        Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages);
     }
 }

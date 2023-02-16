@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Presentation.ViewModel.Messages
+namespace Business_Core.Some_Data_Classes
 {
-    public class FetchingMessagesForUserViewModel
+    public class FetchingMessagesForUser
     {
         public List<ClientMessageRedis> FetchedMessagesList { get; set; }
         public int FetchingMessagesStorageNo { get; set; }

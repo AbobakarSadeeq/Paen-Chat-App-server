@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Business_Core.Entities;
+using Business_Core.FunctionParametersClasses;
 using Business_Core.IServices;
 using DataAccess.DataContext_Class;
 using DataAccess.Services;
@@ -44,44 +45,6 @@ namespace paen_chat_app_server.Controllers
             _redisMessageCacheService = redisMessageCacheService;
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> SendMessage(string user, string message)
-        //{
-
-
-        //    // sending connected clients a message;
-        //    await _hubContext.Clients.All.SendAsync("ReceiveMessage", user,message);
-        //    return Ok();
-        //}
-
-
-        //[HttpPost]
-        //public async Task<IActionResult> StoringMessage(List<ClientSingleMessageViewModel> viewModels)
-        //{
-        //    if (viewModels.Count == 0)
-        //        return Ok();
-
-        //    List<Message> userMessages = new List<Message>();
-        //    foreach (var item in viewModels)
-        //    {
-        //        //DateTime myDate = DateTime.ParseExact(item.MessageDateStamp + " " + item.MessageTimeStamp, "yyyy-MM-dd HH:mm",
-        //        //                       System.Globalization.CultureInfo.InvariantCulture);
-        //        Message message = new Message();
-        //        message.SenderId = item.SenderId;
-        //        message.ReciverId = item.ReciverId;
-        //        message.UserMessage = item.UserMessage;
-        //        message.MessageSeen = item.MessageSeen;
-
-        //        message.Created_At = DateTime.ParseExact(item.MessageDateStamp + " " + item.MessageTimeStamp, "M/dd/yyyy h:mm tt", null);
-        //        userMessages.Add(message);
-
-        //    }
-        //    await _dataContext.Messages.AddRangeAsync(userMessages);
-        //    await _dataContext.SaveChangesAsync();
-
-        //    return Ok();
-        //}
-
         [HttpPost]
         public async Task<IActionResult> StoringMessage(ClientSingleMessageViewModel clientMessageViewModel)
         {
@@ -99,14 +62,19 @@ namespace paen_chat_app_server.Controllers
         }
       
 
-        [HttpGet("UsingRedis")]
-        public async Task<IActionResult> UsingRedis(ClientSingleMessageViewModel viewModel)
+        [HttpGet]
+        public async Task<IActionResult> GetMessagesOfSingleConversation(SingleConversationMessagesParams fetchingSpecificMessageParams)
         {
-            
-            var convertToEntity = _mapper.Map<ClientMessageRedis>(viewModel);
-          //  await _redisMessageCacheService.SaveMessageToHashAsync(convertToEntity, viewModel.ConnectionGroupId);
-            // await _redisMessageCacheService.ReadingCacheData();
-            return Ok();
+            var fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromRedis(fetchingSpecificMessageParams);
+            if (fetchingUserMessages.FetchedMessagesList.Count > 0)
+                return Ok(fetchingUserMessages);
+
+
+            var fetchingSingleConversationAllMessagesFromDb = await _messageService.GetSingleConversationMessagesAllListAsync(fetchingSpecificMessageParams.user1, fetchingSpecificMessageParams.user2);
+
+            fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromDb(fetchingSpecificMessageParams, fetchingSingleConversationAllMessagesFromDb);
+
+            return Ok(fetchingUserMessages); // when FetchingMessagesStorageNo return -1 then it means you have to tell on client side to user s that all messages has been delivered and no more messages found here in redis and db here.
         }
 
 

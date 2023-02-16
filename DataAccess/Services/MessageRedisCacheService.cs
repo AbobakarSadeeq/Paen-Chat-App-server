@@ -3,7 +3,8 @@ using Business_Core.IServices;
 using StackExchange.Redis;
 using SpanJson;
 using Presentation.ViewModel.Messages;
-using DataAccess.FunctionsParametersClasses;
+using Business_Core.Some_Data_Classes;
+using Business_Core.FunctionParametersClasses;
 
 namespace DataAccess.Services
 {
@@ -176,7 +177,8 @@ namespace DataAccess.Services
             await redisDatabase.HashDeleteAsync("RecentlyUsersMessagesStorage", conversationGroupId);
         }
 
-        public async Task<FetchingMessagesForUserViewModel> FetchingSingleConversationUsersMessages(SingleConversationMessagesParams funcParams)
+        // Fetching user messages
+        public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedis(SingleConversationMessagesParams funcParams)
         {
             var redisDb = _redis.GetDatabase();
 
@@ -216,17 +218,29 @@ namespace DataAccess.Services
                     }
 
                     funcParams.fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 3 here
+                    return new FetchingMessagesForUser
+                    {
+                        FetchedMessagesList = new List<ClientMessageRedis>(),
+                        FetchingMessagesStorageNo = 3 // now data base data return started and now db function need to have execute from controller.
+                    };
                 }
             }
 
+            return  new FetchingMessagesForUser();
+        }
+
+        public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages)
+        {
             // fetching Data from db 
+
+            var redisDb = _redis.GetDatabase();
+
             if (funcParams.fetchingMessagesStorageNo == 3)
             {
-               var fetchingSingleConversationAllMessagesFromDb = await _messageService.GetSingleConversationMessagesAllListAsync(funcParams.user1, funcParams.user2);
 
-               await StroingSingleConversationAllMessagesOfDbOnUserMessageStorageRedisAsync(fetchingSingleConversationAllMessagesFromDb, redisDb, funcParams.groupId); // CORRECT
+                await StroingSingleConversationAllMessagesOfDbOnUserMessageStorageRedisAsync(dbMessages, redisDb, funcParams.groupId); // CORRECT
 
-                var fetchingMessagesFromDbList = fetchingSingleConversationAllMessagesFromDb.Skip(funcParams.currentScrollMessangeNumber - 1).Take(30).ToList(); // CORRECT
+                var fetchingMessagesFromDbList = dbMessages.Skip(funcParams.currentScrollMessangeNumber - 1).Take(30).ToList(); // CORRECT
 
                 var convertingMessageDbToRedisMessageFormate = ConvertingDbMessagesFormateIntoRedisStorageMessageFormate(fetchingMessagesFromDbList); // CORRECT
 
@@ -234,7 +248,7 @@ namespace DataAccess.Services
 
                 if (convertingMessageDbToRedisMessageFormate.Count < 30 || convertingMessageDbToRedisMessageFormate.Count == 0)  // CORRECT
                 {
-                    return new FetchingMessagesForUserViewModel // CORRECT
+                    return new FetchingMessagesForUser // CORRECT
                     {
                         FetchedMessagesList = convertingMessageDbToRedisMessageFormate, // convert messages into ClientMessagesRedis tommarow
                         FetchingMessagesStorageNo = -1, // it means all data is completed and no data is found in messages storage to return prevs messages.
@@ -242,7 +256,7 @@ namespace DataAccess.Services
                 }
 
 
-                return new FetchingMessagesForUserViewModel // CORRECT
+                return new FetchingMessagesForUser // CORRECT
                 {
                     FetchedMessagesList = convertingMessageDbToRedisMessageFormate, // convert messages into ClientMessagesRedis tommarow
                     FetchingMessagesStorageNo = 2, // if it completed 30 return then next messages fetching will be from redis again and not from db request again.
@@ -250,8 +264,10 @@ namespace DataAccess.Services
 
             }
 
-            return  new FetchingMessagesForUserViewModel();
+            return new FetchingMessagesForUser();
+
         }
+
 
 
 
@@ -330,11 +346,11 @@ namespace DataAccess.Services
             await redisDb.HashSetAsync("UsersAllMessagesDataStorage", NewConversationMessagesOfSingleUser);
         }
 
-        private FetchingMessagesForUserViewModel SwitchingBetweenRedisStoragesIfNeededAndDb(List<ClientMessageRedis> messageList, int fetchingMessagesStorageNo)
+        private FetchingMessagesForUser SwitchingBetweenRedisStoragesIfNeededAndDb(List<ClientMessageRedis> messageList, int fetchingMessagesStorageNo)
         {
             if (messageList.Count == 30)
             { // if full 30 completed then return it it all and dont do anything.
-                return new FetchingMessagesForUserViewModel
+                return new FetchingMessagesForUser
                 {
                     FetchedMessagesList = messageList,
                     FetchingMessagesStorageNo = fetchingMessagesStorageNo
@@ -344,7 +360,7 @@ namespace DataAccess.Services
             if (messageList.Count > 0)
             {
                 // if less and not having more then return that all data then goto next storage, and again fetching then fetching it from other storage.
-                return new FetchingMessagesForUserViewModel
+                return new FetchingMessagesForUser
                 {
                     FetchedMessagesList = messageList,
                     FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
@@ -354,7 +370,7 @@ namespace DataAccess.Services
 
 
             // if completely 0 then goto next storage for fetching.
-            return new FetchingMessagesForUserViewModel
+            return new FetchingMessagesForUser
             {
                 FetchedMessagesList = messageList,
                 FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1

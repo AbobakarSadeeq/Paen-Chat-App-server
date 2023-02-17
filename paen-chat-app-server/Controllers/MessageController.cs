@@ -66,16 +66,11 @@ namespace paen_chat_app_server.Controllers
         public async Task<IActionResult> GetMessagesOfSingleConversation(SingleConversationMessagesParams fetchingSpecificMessageParams)
         {
             var fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromRedis(fetchingSpecificMessageParams);
+            // fetching messages from redis
             if (fetchingUserMessages.FetchedMessagesList.Count > 0)
             {
-                if (fetchingUserMessages.FetchingMessagesStorageNo == 1)
-                    fetchingUserMessages.LastMessagesCount = 0; // if 30 or 0 this is new value
-                else
-                {
-                 fetchingUserMessages.LastMessagesCount = fetchingUserMessages.FetchedMessagesList.Count;
                 return Ok(fetchingUserMessages);
 
-                }
             }
 
 
@@ -84,7 +79,11 @@ namespace paen_chat_app_server.Controllers
             fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromDb(fetchingSpecificMessageParams, fetchingSingleConversationAllMessagesFromDb);
             fetchingUserMessages.LastMessagesCount = fetchingUserMessages.FetchedMessagesList.Count;
             return Ok(fetchingUserMessages); // when FetchingMessagesStorageNo return -1 then it means you have to tell on client side to user s that all messages has been delivered and no more messages found here in redis and db here.
+
+            // * when data is fetched check it on client side Arr.Length === scrollNo * 30 then return scrollNo++ and fetch data from only that storage place than.
+            // when 30 completely return lastMessageCount then return 0 on that time from front end on all storages redis and db
         }
+
 
 
 

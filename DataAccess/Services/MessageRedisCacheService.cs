@@ -190,14 +190,15 @@ namespace DataAccess.Services
                     var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(recentlyUserRedisMessagesStorageList, funcParams.fetchingMessagesStorageNo);
                     if (recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
                     {
+                        recentlyRedisStorageMessages.LastMessagesCount = recentlyRedisStorageMessages.FetchedMessagesList.Count;
                         return recentlyRedisStorageMessages;
                     }
-
+                    // if no values found
                     funcParams.fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 2 here
 
                 }
 
-
+                // messages count sended here of recentlyMessages and fetcheh only 
 
 
             }
@@ -238,8 +239,8 @@ namespace DataAccess.Services
             if (funcParams.fetchingMessagesStorageNo == 3)
             {
 
-                await StroingSingleConversationAllMessagesOfDbOnUserMessageStorageRedisAsync(dbMessages, redisDb, funcParams.groupId); // CORRECT
-                int skip = 0;
+                await StroingSingleConversationAllMessagesOfDbOnUserMessageStorageRedisAsync(dbMessages, redisDb, funcParams.groupId); // CORRECT']
+
                 var fetchingMessagesFromDbList = new List<Message>();
                 if(funcParams.lastMessagesCount < 30)
                 { 
@@ -249,7 +250,7 @@ namespace DataAccess.Services
                     }
                     else
                     {
-                        fetchingMessagesFromDbList = dbMessages.Skip((funcParams.currentScrollMessangeNumber - 1 * 30) + funcParams.lastMessagesCount).Take(30 - funcParams.lastMessagesCount).ToList();
+                        fetchingMessagesFromDbList = dbMessages.Skip(((funcParams.currentScrollMessangeNumber - 1) * 30) + funcParams.lastMessagesCount).Take(30 - funcParams.lastMessagesCount).ToList();
                     }
                 }else
                 {
@@ -263,7 +264,7 @@ namespace DataAccess.Services
 
                 convertingMessageDbToRedisMessageFormate.Reverse(); // CORRECT
 
-                if (convertingMessageDbToRedisMessageFormate.Count < 30)  // CORRECT
+                if (convertingMessageDbToRedisMessageFormate.Count + funcParams.lastMessagesCount < 30)  // CORRECT
                 {
                     return new FetchingMessagesForUser // CORRECT
                     {
@@ -323,7 +324,7 @@ namespace DataAccess.Services
         {
             if (currentNumberScroll == 1)
             {
-                return clientMessageStack.Take(30 - lastMessagesCount).ToList(); // it will take last 30 because of stack
+                return clientMessageStack.Skip(lastMessagesCount).Take(30 - lastMessagesCount).ToList(); // it will take last 30 because of stack
             }
             else
             {

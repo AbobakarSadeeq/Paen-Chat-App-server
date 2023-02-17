@@ -11,5 +11,12 @@ namespace Business_Core.Some_Data_Classes
     {
         public List<ClientMessageRedis> FetchedMessagesList { get; set; }
         public int FetchingMessagesStorageNo { get; set; }
+        public int LastMessagesCount { get; set; }
+
+        public FetchingMessagesForUser()
+        {
+            FetchedMessagesList = new List<ClientMessageRedis>();
+        }
+
     }
 }

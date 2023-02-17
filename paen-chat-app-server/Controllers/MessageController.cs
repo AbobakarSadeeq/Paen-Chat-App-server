@@ -67,13 +67,22 @@ namespace paen_chat_app_server.Controllers
         {
             var fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromRedis(fetchingSpecificMessageParams);
             if (fetchingUserMessages.FetchedMessagesList.Count > 0)
+            {
+                if (fetchingUserMessages.FetchingMessagesStorageNo == 1)
+                    fetchingUserMessages.LastMessagesCount = 0; // if 30 or 0 this is new value
+                else
+                {
+                 fetchingUserMessages.LastMessagesCount = fetchingUserMessages.FetchedMessagesList.Count;
                 return Ok(fetchingUserMessages);
+
+                }
+            }
 
 
             var fetchingSingleConversationAllMessagesFromDb = await _messageService.GetSingleConversationMessagesAllListAsync(fetchingSpecificMessageParams.user1, fetchingSpecificMessageParams.user2);
 
             fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromDb(fetchingSpecificMessageParams, fetchingSingleConversationAllMessagesFromDb);
-
+            fetchingUserMessages.LastMessagesCount = fetchingUserMessages.FetchedMessagesList.Count;
             return Ok(fetchingUserMessages); // when FetchingMessagesStorageNo return -1 then it means you have to tell on client side to user s that all messages has been delivered and no more messages found here in redis and db here.
         }
 

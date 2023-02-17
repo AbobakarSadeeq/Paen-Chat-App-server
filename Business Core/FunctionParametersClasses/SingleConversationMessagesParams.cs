@@ -13,5 +13,7 @@ namespace Business_Core.FunctionParametersClasses
         public string groupId { get; set; }
         public int user1 { get; set; }
         public int user2 { get; set; }
+        public int lastMessagesCount { get; set; } = 0;
+
     }
 }

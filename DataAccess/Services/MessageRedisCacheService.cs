@@ -13,12 +13,10 @@ namespace DataAccess.Services
     {
 
         private readonly IConnectionMultiplexer _redis;
-        private readonly IMessageService _messageService;
 
-        public MessageRedisCacheService(IConnectionMultiplexer redis, IMessageService messageService)
+        public MessageRedisCacheService(IConnectionMultiplexer redis)
         {
             _redis = redis;
-            _messageService = messageService;
 
 
         }
@@ -177,7 +175,7 @@ namespace DataAccess.Services
             await redisDatabase.HashDeleteAsync("RecentlyUsersMessagesStorage", conversationGroupId);
         }
 
-        // Fetching user messages
+        // ---------------------------------------------- Fetching user messages from redis ----------------------------------------------
         public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedis(SingleConversationMessagesParams funcParams)
         {
             var redisDb = _redis.GetDatabase();
@@ -207,7 +205,7 @@ namespace DataAccess.Services
             // userStorageMessageRedis in redis
             if (funcParams.fetchingMessagesStorageNo == 2)
             {
-                var fetchingDataFromUserMessageStorageRedis = await GetMessagesFromUserMessagesStorageRedisAsync(redisDb, funcParams.groupId, funcParams.currentScrollMessangeNumber);
+                var fetchingDataFromUserMessageStorageRedis = await GetMessagesFromUserMessagesStorageRedisAsync(redisDb, funcParams.groupId, funcParams.currentScrollMessangeNumber, funcParams.lastMessagesCount);
 
                 if (fetchingDataFromUserMessageStorageRedis != null)
                 {
@@ -229,6 +227,8 @@ namespace DataAccess.Services
             return  new FetchingMessagesForUser();
         }
 
+        // ---------------------------------------------- Fetching user messages from Db ----------------------------------------------
+
         public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages)
         {
             // fetching Data from db 
@@ -239,14 +239,31 @@ namespace DataAccess.Services
             {
 
                 await StroingSingleConversationAllMessagesOfDbOnUserMessageStorageRedisAsync(dbMessages, redisDb, funcParams.groupId); // CORRECT
+                int skip = 0;
+                var fetchingMessagesFromDbList = new List<Message>();
+                if(funcParams.lastMessagesCount < 30)
+                { 
+                    if (funcParams.currentScrollMessangeNumber == 1)
+                    {
+                        fetchingMessagesFromDbList = dbMessages.Skip(funcParams.lastMessagesCount).Take(30 - funcParams.lastMessagesCount).ToList();
+                    }
+                    else
+                    {
+                        fetchingMessagesFromDbList = dbMessages.Skip((funcParams.currentScrollMessangeNumber - 1 * 30) + funcParams.lastMessagesCount).Take(30 - funcParams.lastMessagesCount).ToList();
+                    }
+                }else
+                {
+                    fetchingMessagesFromDbList = dbMessages.Skip(funcParams.currentScrollMessangeNumber - 1).Take(30).ToList();
+                }
+               
 
-                var fetchingMessagesFromDbList = dbMessages.Skip(funcParams.currentScrollMessangeNumber - 1).Take(30).ToList(); // CORRECT
+                // CORRECT
 
                 var convertingMessageDbToRedisMessageFormate = ConvertingDbMessagesFormateIntoRedisStorageMessageFormate(fetchingMessagesFromDbList); // CORRECT
 
                 convertingMessageDbToRedisMessageFormate.Reverse(); // CORRECT
 
-                if (convertingMessageDbToRedisMessageFormate.Count < 30 || convertingMessageDbToRedisMessageFormate.Count == 0)  // CORRECT
+                if (convertingMessageDbToRedisMessageFormate.Count < 30)  // CORRECT
                 {
                     return new FetchingMessagesForUser // CORRECT
                     {
@@ -276,40 +293,41 @@ namespace DataAccess.Services
         {
             var findingMessagesOnRecentlyRedisStorageByGroupId = await redisDatabase.HashGetAsync("RecentlyUsersMessagesStorage", groupId);
             var deserializingJsonMessageStackObjects = ConvertingStringToStackObjects(findingMessagesOnRecentlyRedisStorageByGroupId);
-            var fetchingMessagingStack = TakeAndSkipMessagesBasedOnScrollNumber(deserializingJsonMessageStackObjects, scrollCurrentNumber);
+            var fetchingMessagingStack = TakeAndSkipMessagesBasedOnScrollNumber(deserializingJsonMessageStackObjects, scrollCurrentNumber, 0);
             return fetchingMessagingStack;
         }
 
        
 
-        private async Task<List<ClientMessageRedis>> GetMessagesFromUserMessagesStorageRedisAsync(IDatabase redisDatabase, string groupId, int scrollCurrentNumber)
+        private async Task<List<ClientMessageRedis>> GetMessagesFromUserMessagesStorageRedisAsync(IDatabase redisDatabase, string groupId, int scrollCurrentNumber, int lastMessagesCount)
         {
             var findingMessagesOnUsersRedisStorageMessagesByGroupId = await redisDatabase.HashGetAsync("UsersAllMessagesDataStorage", groupId);
             var deserializingJsonMessageStackObjects = ConvertingStringToStackObjects(findingMessagesOnUsersRedisStorageMessagesByGroupId);
-            var fetchingMessagingStack = TakeAndSkipMessagesBasedOnScrollNumber(deserializingJsonMessageStackObjects, scrollCurrentNumber);
+            var fetchingMessagingStack = TakeAndSkipMessagesBasedOnScrollNumber(deserializingJsonMessageStackObjects, scrollCurrentNumber, lastMessagesCount);
             return fetchingMessagingStack;
         }
 
 
-        private Stack<ClientMessageRedis> ConvertingStringToStackObjects(string multipleMessages)
+        private List<ClientMessageRedis> ConvertingStringToStackObjects(string multipleMessages)
         {
             if (multipleMessages == null)
-                return new Stack<ClientMessageRedis>();
+                return new List<ClientMessageRedis>();
 
-            var convertingStringToStackObjectsList = JsonSerializer.Generic.Utf16.Deserialize<Stack<ClientMessageRedis>>(multipleMessages);
+            var convertingStringToStackObjectsList = JsonSerializer.Generic.Utf16.Deserialize<List<ClientMessageRedis>>(multipleMessages);
+            convertingStringToStackObjectsList.Reverse();
             return convertingStringToStackObjectsList;
         }
 
 
-        private List<ClientMessageRedis> TakeAndSkipMessagesBasedOnScrollNumber(Stack<ClientMessageRedis> clientMessageStack, int currentNumberScroll)
+        private List<ClientMessageRedis> TakeAndSkipMessagesBasedOnScrollNumber(List<ClientMessageRedis> clientMessageStack, int currentNumberScroll, int lastMessagesCount)
         {
             if (currentNumberScroll == 1)
             {
-                return clientMessageStack.Take(30).ToList(); // it will take last 30 because of stack
+                return clientMessageStack.Take(30 - lastMessagesCount).ToList(); // it will take last 30 because of stack
             }
             else
             {
-                var takeAndSkipMessagesFromList = clientMessageStack.Skip((currentNumberScroll - 1) * 30).Take(30); // skip based on scroll and multiple with 30 and then take 30.
+                var takeAndSkipMessagesFromList = clientMessageStack.Skip((currentNumberScroll - 1) * 30).Take(30 - lastMessagesCount); // skip based on scroll and multiple with 30 and then take 30.
                 return takeAndSkipMessagesFromList.ToList();
 
             }
@@ -373,7 +391,8 @@ namespace DataAccess.Services
             return new FetchingMessagesForUser
             {
                 FetchedMessagesList = messageList,
-                FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
+                FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1,
+
             };
         }
 

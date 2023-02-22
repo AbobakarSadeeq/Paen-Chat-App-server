@@ -55,9 +55,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(typeof(AutoMap));
 
+
+
+
+
 var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisDbConnectionString"));
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
-
 
 
 // services registeration

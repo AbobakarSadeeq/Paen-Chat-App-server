@@ -18,8 +18,8 @@ namespace DataAccess.Services
         {
             _redis = redis;
 
-
         }
+        // ---------------------------------------------- Storing user messages On redis ----------------------------------------------
 
         public async Task<List<Message>> SaveMessageToHashAsync(ClientMessageRedis clientMessage, string groupId)
         {
@@ -175,6 +175,7 @@ namespace DataAccess.Services
             await redisDatabase.HashDeleteAsync("RecentlyUsersMessagesStorage", conversationGroupId);
         }
 
+
         // ---------------------------------------------- Fetching user messages from redis ----------------------------------------------
         public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedis(SingleConversationMessagesParams funcParams)
         {
@@ -228,6 +229,7 @@ namespace DataAccess.Services
             return  new FetchingMessagesForUser();
         }
 
+
         // ---------------------------------------------- Fetching user messages from Db ----------------------------------------------
 
         public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages)
@@ -249,12 +251,12 @@ namespace DataAccess.Services
                         fetchingMessagesFromDbList = dbMessages.Skip(funcParams.lastMessagesCount).Take(30 - funcParams.lastMessagesCount).ToList();
                     }
                     else
-                    {
+                    { // if page is not currently 1 then this will be execute.
                         fetchingMessagesFromDbList = dbMessages.Skip(((funcParams.currentScrollMessangeNumber - 1) * 30) + funcParams.lastMessagesCount).Take(30 - funcParams.lastMessagesCount).ToList();
                     }
                 }else
-                {
-                    fetchingMessagesFromDbList = dbMessages.Skip(funcParams.currentScrollMessangeNumber - 1).Take(30).ToList();
+                { 
+                    fetchingMessagesFromDbList = dbMessages.Skip((funcParams.currentScrollMessangeNumber - 1) * 30).Take(30).ToList();
                 }
                
 
@@ -286,10 +288,6 @@ namespace DataAccess.Services
 
         }
 
-
-
-
-
         private async Task<List<ClientMessageRedis>> GetMessagesFromRecentlyUserMessageStorageRedisAsync(IDatabase redisDatabase, string groupId, int scrollCurrentNumber)
         {
             var findingMessagesOnRecentlyRedisStorageByGroupId = await redisDatabase.HashGetAsync("RecentlyUsersMessagesStorage", groupId);
@@ -298,8 +296,6 @@ namespace DataAccess.Services
             return fetchingMessagingStack;
         }
 
-       
-
         private async Task<List<ClientMessageRedis>> GetMessagesFromUserMessagesStorageRedisAsync(IDatabase redisDatabase, string groupId, int scrollCurrentNumber, int lastMessagesCount)
         {
             var findingMessagesOnUsersRedisStorageMessagesByGroupId = await redisDatabase.HashGetAsync("UsersAllMessagesDataStorage", groupId);
@@ -307,7 +303,6 @@ namespace DataAccess.Services
             var fetchingMessagingStack = TakeAndSkipMessagesBasedOnScrollNumber(deserializingJsonMessageStackObjects, scrollCurrentNumber, lastMessagesCount);
             return fetchingMessagingStack;
         }
-
 
         private List<ClientMessageRedis> ConvertingStringToStackObjects(string multipleMessages)
         {
@@ -319,7 +314,6 @@ namespace DataAccess.Services
             return convertingStringToStackObjectsList;
         }
 
-
         private List<ClientMessageRedis> TakeAndSkipMessagesBasedOnScrollNumber(List<ClientMessageRedis> clientMessageStack, int currentNumberScroll, int lastMessagesCount)
         {
             if (currentNumberScroll == 1)
@@ -328,7 +322,7 @@ namespace DataAccess.Services
             }
             else
             {
-                var takeAndSkipMessagesFromList = clientMessageStack.Skip((currentNumberScroll - 1) * 30).Take(30 - lastMessagesCount); // skip based on scroll and multiple with 30 and then take 30.
+                var takeAndSkipMessagesFromList = clientMessageStack.Skip(((currentNumberScroll - 1) * 30 ) + lastMessagesCount).Take(30 - lastMessagesCount); // skip based on scroll and multiple with 30 and then take 30.
                 return takeAndSkipMessagesFromList.ToList();
 
             }
@@ -397,6 +391,7 @@ namespace DataAccess.Services
             };
         }
 
+        // 
 
     }
 }

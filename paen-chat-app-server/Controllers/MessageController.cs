@@ -23,17 +23,6 @@ namespace paen_chat_app_server.Controllers
     [ApiController]
     public class MessageController : ControllerBase
     {
-        //private readonly IHubContext<ChatHub> _hubContext;
-        //private readonly DataContext _dataContext;
-        //private readonly IRedisCacheService _redisCacheService;
-
-        //public MessageController(IHubContext<ChatHub> hubContext,
-        //    DataContext dataContext, IRedisCacheService redisCacheService)
-        //{
-        //    _hubContext = hubContext;
-        //    _dataContext = dataContext;
-        //    _redisCacheService = redisCacheService;
-        //}
 
         private readonly IMessageService _messageService;
         private readonly IMapper _mapper;
@@ -48,16 +37,12 @@ namespace paen_chat_app_server.Controllers
         [HttpPost]
         public async Task<IActionResult> StoringMessage(ClientSingleMessageViewModel clientMessageViewModel)
         {
-            var storingMessagesToHash = await _redisMessageCacheService.SaveMessageToHashAsync(clientMessageViewModel.clientMessageRedis, clientMessageViewModel.GroupId);
-            // above line is storing data in db after 2 days passed.
-            // above line storing data in recently message hash in redis.
-            // above line stroing data in userAllMessages hash in redis.
-            // above line is making the hash empty of recentlyMessage when it is stored inside the userAllMessages hash in redis.
-            if(storingMessagesToHash.Count > 0)
-            {
-                await _messageService.StoringUsersMessagesAsync(storingMessagesToHash);
-            }
+          var storingAllNewMessagesInDb =  await _redisMessageCacheService.SaveMessageToHashAsync(clientMessageViewModel.clientMessageRedis, clientMessageViewModel.GroupId);
 
+            if(storingAllNewMessagesInDb.Count > 0)
+            {
+                await _messageService.StoringUsersMessagesAsync(storingAllNewMessagesInDb);
+            }
             return Ok();
         }
       
@@ -65,23 +50,7 @@ namespace paen_chat_app_server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMessagesOfSingleConversation(SingleConversationMessagesParams fetchingSpecificMessageParams)
         {
-            var fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromRedis(fetchingSpecificMessageParams);
-            // fetching messages from redis
-            if (fetchingUserMessages.FetchedMessagesList.Count > 0)
-            {
-                return Ok(fetchingUserMessages);
-
-            }
-
-
-            var fetchingSingleConversationAllMessagesFromDb = await _messageService.GetSingleConversationMessagesAllListAsync(fetchingSpecificMessageParams.user1, fetchingSpecificMessageParams.user2);
-
-            fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromDb(fetchingSpecificMessageParams, fetchingSingleConversationAllMessagesFromDb);
-            fetchingUserMessages.LastMessagesCount = fetchingUserMessages.FetchedMessagesList.Count;
-            return Ok(fetchingUserMessages); // when FetchingMessagesStorageNo return -1 then it means you have to tell on client side to user s that all messages has been delivered and no more messages found here in redis and db here.
-
-            // * when data is fetched check it on client side Arr.Length === scrollNo * 30 then return scrollNo++ and fetch data from only that storage place than.
-            // when 30 completely return lastMessageCount then return 0 on that time from front end on all storages redis and db
+            return Ok();
         }
 
 

@@ -164,3 +164,16 @@ C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-ser
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Business Core.pdb
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\SpanJson.dll
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\paen-chat-app-server.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Azure.Core.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Azure.Identity.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\EFCore.BulkExtensions.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Data.Sqlite.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Sqlite.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Microsoft.Identity.Client.Extensions.Msal.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\NetTopologySuite.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\NetTopologySuite.IO.SqlServerBytes.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Npgsql.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\SQLitePCLRaw.core.dll

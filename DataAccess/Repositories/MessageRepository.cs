@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions;
 
 namespace DataAccess.Repositories
 {
@@ -29,7 +30,7 @@ namespace DataAccess.Repositories
 
         public async Task StoringUsersMessages(List<Message> messages)
         {
-            await _dataContext.Messages.AddRangeAsync(messages);
+            await _dataContext.BulkInsertAsync(messages);
         }
     }
 }

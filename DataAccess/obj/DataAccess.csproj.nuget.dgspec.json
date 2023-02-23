@@ -127,6 +127,10 @@
               "target": "Package",
               "version": "[1.19.0, )"
             },
+            "EFCore.BulkExtensions": {
+              "target": "Package",
+              "version": "[6.0.8, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[6.0.8, )"

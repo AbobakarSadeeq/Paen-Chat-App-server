@@ -37,10 +37,15 @@ namespace paen_chat_app_server.Controllers
         [HttpPost]
         public async Task<IActionResult> StoringMessage(ClientSingleMessageViewModel clientMessageViewModel)
         {
-          var storingAllNewMessagesInDb =  await _redisMessageCacheService.SaveMessageToHashAsync(clientMessageViewModel.clientMessageRedis, clientMessageViewModel.GroupId);
+          var storingAllNewMessagesInDb =  await _redisMessageCacheService.SaveMessagesInRedisAsync(clientMessageViewModel.clientMessageRedis, clientMessageViewModel.GroupId);
 
-            if(storingAllNewMessagesInDb.Count > 0)
-            {
+            // above line is storing data in db after 2 days passed.
+            // above line storing data in new message list in redis.
+            // above line stroing data in old list in redis.
+            // above line is making the new list empty and when it is stored inside the old list in redis.
+
+            if (storingAllNewMessagesInDb.Count > 0)
+            { 
                 await _messageService.StoringUsersMessagesAsync(storingAllNewMessagesInDb);
             }
             return Ok();

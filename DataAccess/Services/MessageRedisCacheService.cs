@@ -21,7 +21,7 @@ namespace DataAccess.Services
         }
         // ---------------------------------------------- Storing user messages On redis ----------------------------------------------
 
-        public async Task<List<Message>> SaveMessageToHashAsync(ClientMessageRedis clientMessage, string groupId)
+        public async Task<List<Message>> SaveMessagesInRedisAsync(ClientMessageRedis clientMessage, string groupId)
         {
             var redisDb = _redis.GetDatabase();
            
@@ -35,8 +35,14 @@ namespace DataAccess.Services
             long convertingRedisSwitchingMessagesStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedis);
             if (convertingRedisSwitchingMessagesStringTimeStampToLong == currentTimeStamp || currentTimeStamp > convertingRedisSwitchingMessagesStringTimeStampToLong)
             {
+                var futureTwoDaysTimeStamp = new DateTimeOffset(DateTime.UtcNow.AddDays(2)).ToUnixTimeSeconds();
+                await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", futureTwoDaysTimeStamp); // because i did if again someone send request then dont again execute that condition.
+
+
                 RedisValue[] listNames = await FetchingAllStoringNewMessagesConversationListNamesFromUniqueListInsideRedisAsync(redisDb);
+
                 List<Message> usersAllMessagesList = new List<Message>();
+
                 foreach (var singleListNameGroupId in listNames)
                 {
                     string correctingGroupIdValue = singleListNameGroupId.ToString().Replace(":New", String.Empty);
@@ -45,8 +51,7 @@ namespace DataAccess.Services
                     usersAllMessagesList.AddRange(singleConversationAllMessagesList);
                 }
 
-                var futureTwoDaysTimeStamp = new DateTimeOffset(DateTime.UtcNow.AddDays(2)).ToUnixTimeSeconds();
-                await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", futureTwoDaysTimeStamp);
+               
 
                 return usersAllMessagesList;
             }

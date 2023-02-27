@@ -8,23 +8,21 @@ using Business_Core.FunctionParametersClasses;
 
 namespace DataAccess.Services
 {
-   
+
     public class MessageRedisCacheService : IMessageRedisCacheService
     {
 
         private readonly IConnectionMultiplexer _redis;
-
         public MessageRedisCacheService(IConnectionMultiplexer redis)
         {
             _redis = redis;
-
         }
         // ---------------------------------------------- Storing user messages On redis ----------------------------------------------
 
         public async Task<List<Message>> SaveMessagesInRedisAsync(ClientMessageRedis clientMessage, string groupId)
         {
             var redisDb = _redis.GetDatabase();
-           
+
             var convertingObjectIntoSerializeObject = ConvertingSingleSendedMessageObjectIntoString(clientMessage);
             await StoringSingleNewMessageIntoNewConversationRedisListAsync(convertingObjectIntoSerializeObject, redisDb, groupId);
             await StoringNewMessagesConversationListNamesInUniqueListOfRedisInsideRedisAsync(groupId, redisDb);
@@ -33,6 +31,8 @@ namespace DataAccess.Services
             var currentTimeStamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
             var fetchingMessagesShiftingFromNewToOldListDateFromRedis = await redisDb.StringGetAsync("ShiftingNewMessageDataTimeSpan");
             long convertingRedisSwitchingMessagesStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedis);
+
+
             if (convertingRedisSwitchingMessagesStringTimeStampToLong == currentTimeStamp || currentTimeStamp > convertingRedisSwitchingMessagesStringTimeStampToLong)
             {
                 var futureTwoDaysTimeStamp = new DateTimeOffset(DateTime.UtcNow.AddDays(2)).ToUnixTimeSeconds();
@@ -46,16 +46,17 @@ namespace DataAccess.Services
                 foreach (var singleListNameGroupId in listNames)
                 {
                     string correctingGroupIdValue = singleListNameGroupId.ToString().Replace(":New", String.Empty);
-                    var singleConversationAllMessagesList =  await StoringNewMessagesListIntoOldMessagesListInRedisAsync(correctingGroupIdValue, redisDb);
+                    var singleConversationAllMessagesList = await StoringNewMessagesListIntoOldMessagesListInRedisAsync(correctingGroupIdValue, redisDb);
                     await DeleteNewConversationListAndItsNameInUniqueListFromRedisAsync(correctingGroupIdValue, redisDb);
                     usersAllMessagesList.AddRange(singleConversationAllMessagesList);
                 }
 
-               
-
+                // calling message service:
                 return usersAllMessagesList;
             }
-           
+
+
+
             return new List<Message>();
 
 
@@ -80,7 +81,7 @@ namespace DataAccess.Services
 
         private async Task<List<Message>> StoringNewMessagesListIntoOldMessagesListInRedisAsync(string groupId, IDatabase redisDb)
         {
-            var sourceNewRedisList = await redisDb.ListRangeAsync($"{groupId}:New", 0, -1); 
+            var sourceNewRedisList = await redisDb.ListRangeAsync($"{groupId}:New", 0, -1);
             Array.Reverse(sourceNewRedisList);
             await redisDb.ListLeftPushAsync($"{groupId}:Old", sourceNewRedisList);
             return ConvertingSingleConversationAllMessagesToDbMessagesFormate(sourceNewRedisList);
@@ -90,8 +91,8 @@ namespace DataAccess.Services
         }
         private async Task DeleteNewConversationListAndItsNameInUniqueListFromRedisAsync(string groupId, IDatabase redisDb)
         {
-           await redisDb.KeyDeleteAsync($"{groupId}:New");
-           await redisDb.SetRemoveAsync("NewConversationListNames", $"{groupId}:New");
+            await redisDb.KeyDeleteAsync($"{groupId}:New");
+            await redisDb.SetRemoveAsync("NewConversationListNames", $"{groupId}:New");
         }
 
         private async Task<RedisValue[]> FetchingAllStoringNewMessagesConversationListNamesFromUniqueListInsideRedisAsync(IDatabase redisdatabase)
@@ -102,7 +103,7 @@ namespace DataAccess.Services
 
         }
 
-        private List<Message> ConvertingSingleConversationAllMessagesToDbMessagesFormate(RedisValue [] singleListAllMessages)
+        private List<Message> ConvertingSingleConversationAllMessagesToDbMessagesFormate(RedisValue[] singleListAllMessages)
         {
             List<Message> messages = new List<Message>();
             foreach (var message in singleListAllMessages)
@@ -121,198 +122,102 @@ namespace DataAccess.Services
             return messages;
         }
 
-        public Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedis(SingleConversationMessagesParams funcParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages)
-        {
-            throw new NotImplementedException();
-        }
-
-        // old and abovve is new
-
-        //private async Task CreateHashesAndAssignTimeSpanForUpdatingStoragesInRedisAsync(IDatabase redisDb)
-        //{
-        //    if(await redisDb.HashLengthAsync("RecentlyUsersMessagesStorage") == 0) // hlen == O(1)
-        //    {
-        //        HashEntry[] insertDataToRedisHash = {
-        //           new HashEntry("CreateHash", "Default Value")
-        //        };
-        //        await redisDb.HashSetAsync("RecentlyUsersMessagesStorage", insertDataToRedisHash);
-        //        await redisDb.HashDeleteAsync("RecentlyUsersMessagesStorage", "CreateHash"); // the hash will became empty now.
-        //    }
-
-        //    if (await redisDb.HashLengthAsync("UsersAllMessagesDataStorage") == 0) // hlen == O(1)
-        //    {
-        //        HashEntry[] insertDataToRedisHash = {
-        //           new HashEntry("CreateHash", "Default Value")
-        //        };
-        //        await redisDb.HashSetAsync("UsersAllMessagesDataStorage", insertDataToRedisHash);
-        //        await redisDb.HashDeleteAsync("UsersAllMessagesDataStorage", "CreateHash"); // the hash will became empty now.
-
-        //    }
-
-        //    if (redisDb.StringGet("ShiftingNewMessageDataTimeSpan").IsNull)
-        //    {
-        //        await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", DateTime.Today.ToString("d"));
-        //    }
-        //}
-
-        //private List<ClientMessageRedis> ConvertingStringToObjects(string multipleMessages)
-        //{
-        //    if (multipleMessages == null)
-        //        return new List<ClientMessageRedis>();
-
-        //    var convertingString = JsonSerializer.Generic.Utf16.Deserialize<List<ClientMessageRedis>>(multipleMessages);
-        //    return convertingString;
-        //}
-        //private string ConvertingMultipleObjectsToString(List<ClientMessageRedis> usersMessagesList)
-        //{
-        //    if (usersMessagesList == null)
-        //        return string.Empty;
-
-        //    var convertingObject = JsonSerializer.Generic.Utf16.Serialize(usersMessagesList);
-        //    return convertingObject;
-        //}
-
-        //private async Task<List<Message>> AddRecentlyMessagesHashToUsersAllMessagesStorageHashAsync(IDatabase selectingDb)
-        //{
-
-        //    // get the recently data first
-        //    List<Message> RecentlyNewAllConversationMessagesForStoreInDb = new List<Message>(); // => this list is going to send or store data on db and that will be sended to message service.
-
-        //    var getRecentlyAllUsersMessages = await selectingDb.HashKeysAsync("RecentlyUsersMessagesStorage");
-        //    foreach (var singleConversationGroupKey in getRecentlyAllUsersMessages)
-        //    {
-
-        //        var getSingleConversationAllNewMessagesData = await selectingDb.HashGetAsync("RecentlyUsersMessagesStorage", singleConversationGroupKey);
-
-        //        List<Message> singleConversationNewMessages = ConvertRedisStoreSingleMessageIntoDbMessageFormate(getSingleConversationAllNewMessagesData);
-
-        //        RecentlyNewAllConversationMessagesForStoreInDb.AddRange(singleConversationNewMessages);
-
-        //         await StoringAllSingleConversationMessagesToHashRedisStorageAsync(selectingDb, singleConversationGroupKey, getSingleConversationAllNewMessagesData);
-
-        //        await DeleteSingleConversationRecentlyUsersMessageFromRedisHashStorage(singleConversationGroupKey, selectingDb);
-        //    }
-
-        //    return RecentlyNewAllConversationMessagesForStoreInDb;
-        //}
-        //// store that new message on db as well => done
-        //private List<Message> ConvertRedisStoreSingleMessageIntoDbMessageFormate(string singleConversationAllNewMessage)
-        //{
-        //    var convertStringIntoRedisMessageFormate = ConvertingStringToObjects(singleConversationAllNewMessage);
-
-        //    List<Message> RecentlyNewMessagesOfSingleConversation = new List<Message>();
-
-        //    foreach (var clientMessageRedis in convertStringIntoRedisMessageFormate)
-        //    {
-        //        Message singleMessage = new Message
-        //        {
-        //            SenderId = clientMessageRedis.SenderId,
-        //            ReceiverId = clientMessageRedis.ReceiverId,
-        //            UserMessage = clientMessageRedis.UserMessage,
-        //            MessageSeen = clientMessageRedis.MessageSeen,
-        //            Created_At = DateTime.Parse(clientMessageRedis.MessageDateStamp + " " + clientMessageRedis.MessageTimeStamp)
-        //        };
-        //        RecentlyNewMessagesOfSingleConversation.Add(singleMessage);
-        //    }
-
-        //    return RecentlyNewMessagesOfSingleConversation;
-        //}
-
-        //// store that in oldMessages as well in redis. => done
-        //private async Task StoringAllSingleConversationMessagesToHashRedisStorageAsync(IDatabase redisDatabase, string conversationGroupIdKey, string allRecentMessagesOfSingleConversation)
-        //{
-        //    var fetchAllStoredMessagesOfSingleConversation = await redisDatabase.HashGetAsync("UsersAllMessagesDataStorage", conversationGroupIdKey);
-
-        //    List<ClientMessageRedis> recentlySingleConversationAllMessages = ConvertingStringToObjects(allRecentMessagesOfSingleConversation);
-
-        //    List<ClientMessageRedis> singleConversationUserAllRecentlyAndStoredMessages = ConvertingStringToObjects(fetchAllStoredMessagesOfSingleConversation);
-
-        //    singleConversationUserAllRecentlyAndStoredMessages.AddRange(recentlySingleConversationAllMessages);
-
-        //    string convertingAllSingleConversationMessagesToStringToStoreInHash = ConvertingMultipleObjectsToString(singleConversationUserAllRecentlyAndStoredMessages);
-
-
-        //    HashEntry[] NewConversationMessagesOfSingleUser = {
-
-        //    new HashEntry(conversationGroupIdKey, convertingAllSingleConversationMessagesToStringToStoreInHash),
-
-        //    };
-        //    await redisDatabase.HashSetAsync("UsersAllMessagesDataStorage", NewConversationMessagesOfSingleUser);
-        //}
-
-        //// then delete it inside the redis as well when its completed one by one from recentlyMessages. => done
-        //private async Task DeleteSingleConversationRecentlyUsersMessageFromRedisHashStorage(string conversationGroupId, IDatabase redisDatabase)
-        //{
-        //    await redisDatabase.HashDeleteAsync("RecentlyUsersMessagesStorage", conversationGroupId);
-        //}
-
-
-
-
-
-
-
-
         //// ---------------------------------------------- Fetching user messages from redis ----------------------------------------------
-        //public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedis(SingleConversationMessagesParams funcParams)
-        //{
-        //    var redisDb = _redis.GetDatabase();
-
-        //    // recentlyUserMessagesRedis in redis
-        //    // from client the fetchingMEssagesStorageNo will be change because if data
-        //    if (funcParams.fetchingMessagesStorageNo == 1) // fetching data from recentlyUserMessageStorageRedis
-        //    {
-        //        var recentlyUserRedisMessagesStorageList = await GetMessagesFromRecentlyUserMessageStorageRedisAsync(redisDb, funcParams.groupId, funcParams.currentScrollMessangeNumber);
-        //        if (recentlyUserRedisMessagesStorageList != null)
-        //        {
-        //            var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(recentlyUserRedisMessagesStorageList, funcParams.fetchingMessagesStorageNo);
-        //            if (recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
-        //            {
-        //                recentlyRedisStorageMessages.LastMessagesCount = recentlyRedisStorageMessages.FetchedMessagesList.Count;
-        //                return recentlyRedisStorageMessages;
-        //            }
-        //            // if no values found
-        //            funcParams.fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 2 here
-
-        //        }
-
-        //        // messages count sended here of recentlyMessages and fetcheh only 
 
 
-        //    }
+        public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedisAsync(SingleConversationMessagesParams funcParams)
+        {
+            var redisDb = _redis.GetDatabase();
 
-        //    // userStorageMessageRedis in redis
-        //    if (funcParams.fetchingMessagesStorageNo == 2)
-        //    {
-        //        var fetchingDataFromUserMessageStorageRedis = await GetMessagesFromUserMessagesStorageRedisAsync(redisDb, funcParams.groupId, funcParams.currentScrollMessangeNumber, funcParams.lastMessagesCount);
+            if (funcParams.fetchingMessagesStorageNo == 1) // fetching data from user:NewList
+            {
+                var fetchingMessagesFromNewListMessagesRedis = await GetSingleConversationMessagesFromUserNewOrOldList(redisDb, funcParams.groupId, funcParams.currentScrollingPosition, "New");
+                if (fetchingMessagesFromNewListMessagesRedis != null)
+                {
+                    var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(fetchingMessagesFromNewListMessagesRedis, funcParams.fetchingMessagesStorageNo);
 
-        //        if (fetchingDataFromUserMessageStorageRedis != null)
-        //        {
-        //            var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(fetchingDataFromUserMessageStorageRedis, funcParams.fetchingMessagesStorageNo);
-        //            if (recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
-        //            {
-        //                return recentlyRedisStorageMessages;
-        //            }
+                    if (recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
+                    {
+                        recentlyRedisStorageMessages.LastMessagesCount = recentlyRedisStorageMessages.FetchedMessagesList.Count;
+                        return recentlyRedisStorageMessages;
+                    }
+                    funcParams.fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 2 here
+                }
 
-        //            funcParams.fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 3 here
-        //            return new FetchingMessagesForUser
-        //            {
-        //                FetchedMessagesList = new List<ClientMessageRedis>(),
-        //                FetchingMessagesStorageNo = 3 // now data base data return started and now db function need to have execute from controller.
-        //            };
-        //        }
-        //    }
+            }
 
-        //    return  new FetchingMessagesForUser();
-        //}
+            if (funcParams.fetchingMessagesStorageNo == 2)
+            {
+                var fetchingMessagesFromNewListMessagesRedis = await GetSingleConversationMessagesFromUserNewOrOldList(redisDb, funcParams.groupId, funcParams.currentScrollingPosition, "Old");
+
+                if (fetchingMessagesFromNewListMessagesRedis != null)
+                {
+                    var recentlyRedisStorageMessages = SwitchingBetweenRedisStoragesIfNeededAndDb(fetchingMessagesFromNewListMessagesRedis, funcParams.fetchingMessagesStorageNo);
+
+                    if (recentlyRedisStorageMessages.FetchedMessagesList.Count != 0)
+                    {
+                        return recentlyRedisStorageMessages;
+                    }
+                    funcParams.fetchingMessagesStorageNo = recentlyRedisStorageMessages.FetchingMessagesStorageNo; // it will become 3 here
+                    return new FetchingMessagesForUser
+                    {
+                        FetchedMessagesList = new List<ClientMessageRedis>(),
+                        FetchingMessagesStorageNo = 3 // now data base data return started and now db function need to have execute from controller.
+                    };
+                }
+            }
+
+             return new FetchingMessagesForUser();
+        }
+
+
+
+
+
+        private async Task<List<ClientMessageRedis>> GetSingleConversationMessagesFromUserNewOrOldList(IDatabase redisDb, string groupId, int scrollingPosition, string fromListName)
+        {
+            if(scrollingPosition == 0) 
+            {
+               var fetchingLast30MessagesFromRedis = await redisDb.ListRangeAsync($"{groupId}:{fromListName}", 0, 29); // messages from 0 to 31 will be fetch
+               var newListMessages = await ConvertingMessagesToObjects(fetchingLast30MessagesFromRedis);
+                return newListMessages;
+            }
+            else
+            {
+                var fetchingLast30MessagesFromRedis = await redisDb
+                    .ListRangeAsync($"{groupId}:{fromListName}", (scrollingPosition * 30) - 1, (scrollingPosition + 1) * 29); // messages from 0 to 31 will be fetch
+                var newListMessages = await ConvertingMessagesToObjects(fetchingLast30MessagesFromRedis);
+                return newListMessages;
+            }
+        }
+
+        private Task<List<ClientMessageRedis>> ConvertingMessagesToObjects(RedisValue[] messages) 
+        {
+            string messagesJson = JsonSerializer.Generic.Utf16.Serialize(messages);
+            var messagesList = JsonSerializer.Generic.Utf16.Deserialize<List<ClientMessageRedis>>(messagesJson);
+            return Task.FromResult(messagesList);
+
+        }
+
+
+
+
+
 
 
         //// ---------------------------------------------- Fetching user messages from Db ----------------------------------------------
+
+        public Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages)
+        {
+            // fetching Data from db 
+
+            var redisDb = _redis.GetDatabase();
+
+            if (funcParams.fetchingMessagesStorageNo == 3)
+            {
+
+            }
+        }
 
         //public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages)
         //{
@@ -410,24 +315,7 @@ namespace DataAccess.Services
         //    }
         //}
 
-        //private List<ClientMessageRedis> ConvertingDbMessagesFormateIntoRedisStorageMessageFormate(List<Message> singleConversationMessages)
-        //{
-        //    List<ClientMessageRedis> redisMessages = new List<ClientMessageRedis>();
-        //    foreach (var singleMessage in singleConversationMessages)
-        //    {
-        //        redisMessages.Add(new ClientMessageRedis
-        //        {
-        //            UserMessage = singleMessage.UserMessage,
-        //            SenderId = singleMessage.SenderId,
-        //            ReceiverId = singleMessage.ReceiverId,
-        //            MessageSeen = singleMessage.MessageSeen,
-        //            MessageTimeStamp = singleMessage.Created_At.Value.TimeOfDay.ToString(),
-        //            MessageDateStamp = singleMessage.Created_At.Value.Date.ToString(),
-        //        });
-        //    }
-
-        //    return redisMessages;
-        //}
+    
 
         //private async Task StroingSingleConversationAllMessagesOfDbOnUserMessageStorageRedisAsync(List<Message> allMessagesOfSingleConversationFromDb, IDatabase redisDb, string groupId)
         //{
@@ -441,39 +329,74 @@ namespace DataAccess.Services
         //    await redisDb.HashSetAsync("UsersAllMessagesDataStorage", NewConversationMessagesOfSingleUser);
         //}
 
-        //private FetchingMessagesForUser SwitchingBetweenRedisStoragesIfNeededAndDb(List<ClientMessageRedis> messageList, int fetchingMessagesStorageNo)
-        //{
-        //    if (messageList.Count == 30)
-        //    { // if full 30 completed then return it it all and dont do anything.
-        //        return new FetchingMessagesForUser
-        //        {
-        //            FetchedMessagesList = messageList,
-        //            FetchingMessagesStorageNo = fetchingMessagesStorageNo
-        //        };
-        //    }
+        private async Task StroingSingleConversationAllMessagesFromDbOnOldUserMessagesListRedisAsync(List<Message> dbMessages, IDatabase redisDb, string groupId)
+        {
+            await redisDb.KeyDeleteAsync($"{groupId}:Old");
+            var convertingAllMessagesFormate = ConvertingDbMessagesFormateIntoRedisStorageMessageFormateAndStoringToRedis(dbMessages);
+            var pipeline = redisDb.CreateBatch();
+            foreach (var singleMessageFromDb in convertingAllMessagesFormate)
+            {
+                string singleDbMessageJson = JsonSerializer.Generic.Utf16.Serialize(singleMessageFromDb);
+                await pipeline.ListLeftPushAsync($"{groupId}:Old", singleDbMessageJson);
 
-        //    if (messageList.Count > 0)
-        //    {
-        //        // if less and not having more then return that all data then goto next storage, and again fetching then fetching it from other storage.
-        //        return new FetchingMessagesForUser
-        //        {
-        //            FetchedMessagesList = messageList,
-        //            FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
-        //        };
+            }
+        }
 
-        //    }
+        private List<ClientMessageRedis> ConvertingDbMessagesFormateIntoRedisStorageMessageFormateAndStoringToRedis(List<Message> singleConversationMessages)
+        {
+            List<ClientMessageRedis> redisMessages = new List<ClientMessageRedis>();
+
+            foreach (var singleMessage in singleConversationMessages)
+            {
+                redisMessages.Add(new ClientMessageRedis
+                {
+                    UserMessage = singleMessage.UserMessage,
+                    SenderId = singleMessage.SenderId,
+                    ReceiverId = singleMessage.ReceiverId,
+                    MessageSeen = singleMessage.MessageSeen,
+                    MessageTimeStamp = singleMessage.Created_At.Value.TimeOfDay.ToString(),
+                    MessageDateStamp = singleMessage.Created_At.Value.Date.ToString(),
+                });
+                string singleDbMessageJson = JsonSerializer.Generic.Utf16.Serialize(singleMessageFromDb);
+                await pipeline.ListLeftPushAsync($"{groupId}:Old", singleDbMessageJson);
+
+            }
+
+            return redisMessages;
+        }
+
+        private FetchingMessagesForUser SwitchingBetweenRedisStoragesIfNeededAndDb(List<ClientMessageRedis> messageList, int fetchingMessagesStorageNo)
+        {
+            if (messageList.Count == 30)
+            { // if full 30 completed then return it it all and dont do anything.
+                return new FetchingMessagesForUser
+                {
+                    FetchedMessagesList = messageList,
+                    FetchingMessagesStorageNo = fetchingMessagesStorageNo
+                };
+            }
+
+            if (messageList.Count > 0)
+            {
+                // if less and not having more then return that all data then goto next storage, and again fetching then fetching it from other storage.
+                return new FetchingMessagesForUser
+                {
+                    FetchedMessagesList = messageList,
+                    FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1
+                };
+
+            }
 
 
-        //    // if completely 0 then goto next storage for fetching.
-        //    return new FetchingMessagesForUser
-        //    {
-        //        FetchedMessagesList = messageList,
-        //        FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1,
+            // if completely 0 then goto next storage for fetching.
+            return new FetchingMessagesForUser
+            {
+                FetchedMessagesList = messageList,
+                FetchingMessagesStorageNo = fetchingMessagesStorageNo + 1,
 
-        //    };
-        //}
+            };
+        }
 
-        // 
-
+      
     }
 }

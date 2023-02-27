@@ -65,8 +65,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
 // services registeration
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddSingleton<IMessageRedisCacheService, MessageRedisCacheService>();
 
+builder.Services.AddSingleton<IMessageRedisCacheService, MessageRedisCacheService>();
 builder.Services.AddTransient<IContactService, ContactService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IMessageService, MessageService>();

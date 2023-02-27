@@ -8,7 +8,7 @@ namespace Business_Core.FunctionParametersClasses
 {
     public class SingleConversationMessagesParams
     {
-        public int currentScrollMessangeNumber { get; set; }
+        public int currentScrollingPosition { get; set; }
         public int fetchingMessagesStorageNo { get; set; }
         public string groupId { get; set; }
         public int user1 { get; set; }

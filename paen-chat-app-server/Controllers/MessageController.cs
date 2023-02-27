@@ -45,8 +45,9 @@ namespace paen_chat_app_server.Controllers
             // above line is making the new list empty and when it is stored inside the old list in redis.
 
             if (storingAllNewMessagesInDb.Count > 0)
-            { 
+            {
                 await _messageService.StoringUsersMessagesAsync(storingAllNewMessagesInDb);
+                // inseration issues of million at the same time so, have to divide it into sub-data or sub-list like when 10k element stored in list then do one transaction there.
             }
             return Ok();
         }
@@ -55,6 +56,7 @@ namespace paen_chat_app_server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMessagesOfSingleConversation(SingleConversationMessagesParams fetchingSpecificMessageParams)
         {
+            var fetchingData = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromRedis(fetchingSpecificMessageParams);
             return Ok();
         }
 

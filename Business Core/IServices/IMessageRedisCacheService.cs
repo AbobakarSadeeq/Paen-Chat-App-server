@@ -7,7 +7,7 @@ namespace Business_Core.IServices
     public interface IMessageRedisCacheService
     {
         Task<List<Message>> SaveMessagesInRedisAsync(ClientMessageRedis message, string groupId);
-        Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedis(SingleConversationMessagesParams funcParams);
+        Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedisAsync(SingleConversationMessagesParams funcParams);
         Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages);
     }
 }

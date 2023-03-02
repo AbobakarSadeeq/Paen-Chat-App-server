@@ -61,8 +61,6 @@ namespace paen_chat_app_server.Controllers
             // fetching messages from redis
             if (fetchingUserMessages.FetchedMessagesList.Count > 0)
             {
-               
-
                 return Ok(fetchingUserMessages);
 
             }
@@ -77,11 +75,14 @@ namespace paen_chat_app_server.Controllers
 
 
             return Ok(fetchingUserMessages);
-            // by default scrolling will be 0
+            // by default scrolling will be 1
             // when FetchingMessagesStorageNo return -1 then it means you have to tell on client side to user s that all messages has been delivered and no more messages found here in redis and db here.
 
             // * when data is fetched check it on client side Arr.Length === scrollNo * 30 then return scrollNo++ and fetch data from only that storage place than.
-            // when 30 is complete then become zero 0
+
+            // by default lastMessageCount will become 0 when 30 or more than 30 messages is return to the client.
+
+            
         }
 
 

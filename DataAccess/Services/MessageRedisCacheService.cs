@@ -17,19 +17,36 @@ namespace DataAccess.Services
         {
             _redis = redis;
         }
+
+
+
         // ---------------------------------------------- Storing user messages On redis ----------------------------------------------
+
+
 
         public async Task<List<Message>> SaveMessagesInRedisAsync(ClientMessageRedis clientMessage, string groupId)
         {
+
             var redisDb = _redis.GetDatabase();
 
             var convertingObjectIntoSerializeObject = ConvertingSingleSendedMessageObjectIntoString(clientMessage);
+
             await StoringSingleNewMessageIntoNewConversationRedisListAsync(convertingObjectIntoSerializeObject, redisDb, groupId);
+
             await StoringNewMessagesConversationListNamesInUniqueListOfRedisInsideRedisAsync(groupId, redisDb);
+
+            await AddingAndUpdatingSingleConversationRecentlyUsedTimeStampsInSortedSetsInRedisAsync(groupId);
+
+            await AddingSixHoursTimeStampsForRemovingNotUsedRecentlyOldListFromRedisAsync();
+
+
 
             var currentTimeStamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
             var fetchingMessagesShiftingFromNewToOldListDateFromRedis = await redisDb.StringGetAsync("ShiftingNewMessageDataTimeSpan");
-            long convertingRedisSwitchingMessagesStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedis);
+
+            long convertingRedisSwitchingMessagesStringTimeStampToLong = 0;
+            if (fetchingMessagesShiftingFromNewToOldListDateFromRedis.HasValue)
+                convertingRedisSwitchingMessagesStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedis);
 
 
             if (convertingRedisSwitchingMessagesStringTimeStampToLong == currentTimeStamp || currentTimeStamp > convertingRedisSwitchingMessagesStringTimeStampToLong)
@@ -55,9 +72,7 @@ namespace DataAccess.Services
             }
 
 
-
             return new List<Message>();
-
 
         }
 
@@ -120,6 +135,57 @@ namespace DataAccess.Services
             }
             return messages;
         }
+
+
+
+        // --------------------------- LRU --------------------------------------
+
+
+
+        private async Task AddingAndUpdatingSingleConversationRecentlyUsedTimeStampsInSortedSetsInRedisAsync(string groupId)
+        {
+            var redisDb = _redis.GetDatabase();
+            var currentTimeStampPlusAddTwoDays = new DateTimeOffset(DateTime.UtcNow.AddDays(2)).ToUnixTimeSeconds();
+            await redisDb.SortedSetAddAsync("LeastRecentlyUsedConversationList", groupId, currentTimeStampPlusAddTwoDays);
+
+        }
+
+        private async Task AddingSixHoursTimeStampsForRemovingNotUsedRecentlyOldListFromRedisAsync()
+        {
+            var redisDb = _redis.GetDatabase();
+            var currentTimeStamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            var fetchingMessagesShiftingFromNewToOldListDateFromRedis = await redisDb.StringGetAsync("LeastRecentlyUsedConversationDataTimeSpan");
+            long convertingRedisRecentlyUsedStringTimeStampToLong = 0;
+            if (fetchingMessagesShiftingFromNewToOldListDateFromRedis.HasValue)
+                 convertingRedisRecentlyUsedStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedis);
+
+
+            if (convertingRedisRecentlyUsedStringTimeStampToLong == currentTimeStamp || currentTimeStamp > convertingRedisRecentlyUsedStringTimeStampToLong)
+            {
+                await RemovingNotUsedRecentlyOldListFromRedisAsync();
+                var futureSixHoursTimeStamp = new DateTimeOffset(DateTime.UtcNow.AddHours(6)).ToUnixTimeSeconds();
+                await redisDb.StringSetAsync("LeastRecentlyUsedConversationDataTimeSpan", futureSixHoursTimeStamp);
+            }
+
+        }
+
+        private async Task  RemovingNotUsedRecentlyOldListFromRedisAsync()
+        {
+            var redisDb = _redis.GetDatabase();
+            var currentTimeStamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            var beforeTwoDays = currentTimeStamp - 172800; 
+            var leastRecentlyUsedConversationList = await redisDb.SortedSetRangeByScoreAsync("LeastRecentlyUsedConversationList", 0, beforeTwoDays);
+
+            foreach (var singleLRU in leastRecentlyUsedConversationList)
+            {
+                await redisDb.KeyDeleteAsync($"{singleLRU.ToString()}:Old");
+                await redisDb.SortedSetRemoveAsync("LeastRecentlyUsedConversationList", singleLRU.ToString());
+
+            }
+            // fetching from today current time and date to last two days.
+        }
+
+
 
         //// ---------------------------------------------- Fetching user messages from redis ----------------------------------------------
 
@@ -235,7 +301,6 @@ namespace DataAccess.Services
 
 
 
-
         //// ---------------------------------------------- Fetching user messages from Db ----------------------------------------------
 
         public async Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages)
@@ -263,8 +328,7 @@ namespace DataAccess.Services
                     fetchingMessagesFromDbList = dbMessages.Skip((funcParams.currentScrollingPosition - 1) * 30).Take(30).ToList();
                 }
 
-
-                await StroingSingleConversationAllMessagesFromDbOnOldUserMessagesListRedisAsync(dbMessages, redisDb, funcParams.groupId);
+ 
 
                 var convertingMessageDbToRedisMessageFormate = ConvertingReturningMessagesFromDbIntoRedisFormate(fetchingMessagesFromDbList);
 
@@ -280,6 +344,7 @@ namespace DataAccess.Services
                     };
                 }
 
+                await StroingSingleConversationAllMessagesFromDbOnOldUserMessagesListRedisAsync(dbMessages, redisDb, funcParams.groupId);
 
                 return new FetchingMessagesForUser // CORRECT
                 {
@@ -288,7 +353,6 @@ namespace DataAccess.Services
                 };
 
             }
-
                 return new FetchingMessagesForUser();
 
         }

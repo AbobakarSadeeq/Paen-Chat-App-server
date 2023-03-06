@@ -44,12 +44,12 @@ namespace DataAccess.Services
             var currentTimeStamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
             var fetchingMessagesShiftingFromNewToOldListDateFromRedis = await redisDb.StringGetAsync("ShiftingNewMessageDataTimeSpan");
 
-            long convertingRedisSwitchingMessagesStringTimeStampToLong = 0;
+            long convertingRedisSwitchingMessagesListStringTimeStampToLong = 0;
             if (fetchingMessagesShiftingFromNewToOldListDateFromRedis.HasValue)
-                convertingRedisSwitchingMessagesStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedis);
+                convertingRedisSwitchingMessagesListStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedis);
 
 
-            if (convertingRedisSwitchingMessagesStringTimeStampToLong == currentTimeStamp || currentTimeStamp > convertingRedisSwitchingMessagesStringTimeStampToLong)
+            if (convertingRedisSwitchingMessagesListStringTimeStampToLong == currentTimeStamp || currentTimeStamp > convertingRedisSwitchingMessagesListStringTimeStampToLong)
             {
                 var futureTwoDaysTimeStamp = new DateTimeOffset(DateTime.UtcNow.AddDays(2)).ToUnixTimeSeconds();
                 await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", futureTwoDaysTimeStamp); // because i did if again someone send request then dont again execute that condition.
@@ -89,10 +89,14 @@ namespace DataAccess.Services
 
         private async Task StoringNewMessagesConversationListNamesInUniqueListOfRedisInsideRedisAsync(string groupId, IDatabase redisDb)
         {
-            // i dont have to search about that is that value is there or not becuase it will not give me exception
             await redisDb.SetAddAsync("NewConversationListNames", $"{groupId}:New");
         }
 
+        private async Task DeleteNewConversationListAndItsNameInUniqueListFromRedisAsync(string groupId, IDatabase redisDb)
+        {
+            await redisDb.KeyDeleteAsync($"{groupId}:New");
+            await redisDb.SetRemoveAsync("NewConversationListNames", $"{groupId}:New");
+        }
         private async Task<List<Message>> StoringNewMessagesListIntoOldMessagesListInRedisAsync(string groupId, IDatabase redisDb)
         {
             var sourceNewRedisList = await redisDb.ListRangeAsync($"{groupId}:New", 0, -1);
@@ -102,11 +106,6 @@ namespace DataAccess.Services
 
 
 
-        }
-        private async Task DeleteNewConversationListAndItsNameInUniqueListFromRedisAsync(string groupId, IDatabase redisDb)
-        {
-            await redisDb.KeyDeleteAsync($"{groupId}:New");
-            await redisDb.SetRemoveAsync("NewConversationListNames", $"{groupId}:New");
         }
 
         private async Task<RedisValue[]> FetchingAllStoringNewMessagesConversationListNamesFromUniqueListInsideRedisAsync(IDatabase redisdatabase)

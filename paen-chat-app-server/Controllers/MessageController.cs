@@ -47,7 +47,7 @@ namespace paen_chat_app_server.Controllers
             if (storingAllNewMessagesInDb.Count > 0)
             {
                 await _messageService.StoringUsersMessagesAsync(storingAllNewMessagesInDb);
-                // inseration issues of million at the same time so, have to divide it into sub-data or sub-list like when 10k element stored in list then do one transaction there.
+                // here i am using the bulk insert of EF core which will be store alot of list data in fast way.
             }
             return Ok();
         }

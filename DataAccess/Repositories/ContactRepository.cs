@@ -100,6 +100,10 @@ namespace DataAccess.Repositories
             findingContactId.LastName = contact.LastName;
             _DataContext.Contacts.Update(findingContactId);
 
+           
+
+
+
         }
 
         public async Task<object> GetSingleUserContactsAsync(int userId)

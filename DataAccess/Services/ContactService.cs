@@ -53,7 +53,8 @@ namespace DataAccess.Services
 
         public async Task<object> ListOfAllChatConnectedWithSingleUserAsync(int userId)
         {
-            return await _unitOfWork._contactRepository.ListOfChatConnectedWithSingleUserAsync(userId);
+            throw new Exception();
+          //  return await _unitOfWork._contactRepository.ListOfChatConnectedWithSingleUserAsync(userId);
 
         }
 

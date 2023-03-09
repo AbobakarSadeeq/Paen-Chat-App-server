@@ -102,8 +102,6 @@ namespace DataAccess.Repositories
 
            
 
-
-
         }
 
         public async Task<object> GetSingleUserContactsAsync(int userId)
@@ -124,50 +122,56 @@ namespace DataAccess.Repositories
                                          BlockContact = c.Block_Contact,
                                          AboutStatus = rightTable.About == null ? null : rightTable.About,
                                          UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
-                                         UserId = rightTable.UserID == null ? 0 : rightTable.UserID, // if right table doesnt have it then make it 0
+                                         UserId = rightTable.UserID == null ? 0 : rightTable.UserID,
+                                         ConnectedInMessages = c.ConnectedInMessages
                                      }).ToListAsync();
             return RightJoining;
         }
 
 
+        // for not this is not required because i dont want to execute two time fetching contacts from database
         // this will execute when chat app is opend and if user is in the converstion list then it will fetch all those users then fetch all messages of each user required to change fetching messages.
+        
         public async Task<object> ListOfChatConnectedWithSingleUserAsync(int userId)
         {
-            var RightJoining = await (from c in _DataContext.Contacts // right-table
-                                     join u in _DataContext.Users // left - table
-                                     on c.PhoneNumber equals u.ContactNumber into bothTableData
+            //    var RightJoining = await (from c in _DataContext.Contacts // right-table
+            //                             join u in _DataContext.Users // left - table
+            //                             on c.PhoneNumber equals u.ContactNumber into bothTableData
 
-                                     from rightTable in bothTableData.DefaultIfEmpty()
-                                     where c.UserId == userId && c.LastMessage != null && c.Block_Contact == false
-                                     select new
-                                     {
-                                         ContactId = c.ContactID,
-                                         SingleContactGroupConnectionId = c.UserGroupPrivateConnectionId,
-                                         ContactName = c.FirstName.Length == 0 ? "" : c.FirstName + " " + c.LastName,
-                                         PhoneNumber = c.PhoneNumber,
-                                         BlockContact = c.Block_Contact,
-                                         UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
-                                         LastMessage = c.LastMessage,
-                                         UserItSelfId = userId,
-                                         UsersConnectedId = rightTable.UserID,
-                                         SingleConnectedUserMessagesList = new List<Message>()
-                                     }).ToListAsync();
+            //                             from rightTable in bothTableData.DefaultIfEmpty()
+            //                             where c.UserId == userId  && c.Block_Contact == false
+            //                             select new
+            //                             {
+            //                                 ContactId = c.ContactID,
+            //                                 SingleContactGroupConnectionId = c.UserGroupPrivateConnectionId,
+            //                                 ContactName = c.FirstName.Length == 0 ? "" : c.FirstName + " " + c.LastName,
+            //                                 PhoneNumber = c.PhoneNumber,
+            //                                 BlockContact = c.Block_Contact,
+            //                                 UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
+            //                                 UserItSelfId = userId,
+            //                                 UsersConnectedId = rightTable.UserID,
+            //                                 SingleConnectedUserMessagesList = new List<Message>()
+            //                             }).ToListAsync();
 
-            // changing required here for to not fetch all messages at a time
-            foreach (var singleContact in RightJoining)
+            //    // changing required here for to not fetch all messages at a time
+            //    foreach (var singleContact in RightJoining)
+            //    {
+            //        var findingSingleContactAllMessages = _DataContext.Messages
+            //            .Include(a => a.MessageAttachments)
+            //            .Where(a => (a.SenderId == userId && a.ReceiverId == singleContact.UsersConnectedId) ||
+            //            (a.SenderId == singleContact.UsersConnectedId && a.ReceiverId == userId))
+            //            .ToList();
+            //        if (findingSingleContactAllMessages != null)
+            //        {
+            //            singleContact.SingleConnectedUserMessagesList.AddRange(findingSingleContactAllMessages);
+            //        }
+            //    }
+
+            //    return RightJoining;
+            return new
             {
-                var findingSingleContactAllMessages = _DataContext.Messages
-                    .Include(a => a.MessageAttachments)
-                    .Where(a => (a.SenderId == userId && a.ReceiverId == singleContact.UsersConnectedId) ||
-                    (a.SenderId == singleContact.UsersConnectedId && a.ReceiverId == userId))
-                    .ToList();
-                if (findingSingleContactAllMessages != null)
-                {
-                    singleContact.SingleConnectedUserMessagesList.AddRange(findingSingleContactAllMessages);
-                }
-            }
 
-            return RightJoining;
+            };
         }
 
         public async Task UnlocakingContactAsync(int contactId)

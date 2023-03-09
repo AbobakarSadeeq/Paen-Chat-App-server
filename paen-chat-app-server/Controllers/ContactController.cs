@@ -65,8 +65,9 @@ namespace paen_chat_app_server.Controllers
         [HttpGet("ListOfChatConnectedWithSingleUser/{userId}")]
         public async Task<IActionResult> ListOfChatConnectedWithSingleUser(int userId)
         {
-            var fetchingAllConnectedChatOfSingleUser = await _contactService.ListOfAllChatConnectedWithSingleUserAsync(userId);
-            return Ok(fetchingAllConnectedChatOfSingleUser);
+            //var fetchingAllConnectedChatOfSingleUser = await _contactService.ListOfAllChatConnectedWithSingleUserAsync(userId);
+            //return Ok(fetchingAllConnectedChatOfSingleUser);
+            return Ok();
         }
 
         [HttpPut("EditContact")]

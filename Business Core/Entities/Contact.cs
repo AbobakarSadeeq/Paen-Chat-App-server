@@ -14,13 +14,13 @@ namespace Business_Core.Entities
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? PhoneNumber { get; set; }
-        public string? LastMessage { get; set; }
         public bool Verified_Contact { get; set; }
         public bool Block_Contact { get; set; }
         public DateTime? Created_At { get; set; }
         public int UserId { get; set; }
         public virtual User? User { get; set; }
         public string? UserGroupPrivateConnectionId { get; set; }
+        public bool ConnectedInMessages { get; set; }
 
     }
 

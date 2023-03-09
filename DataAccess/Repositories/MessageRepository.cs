@@ -30,8 +30,7 @@ namespace DataAccess.Repositories
 
         public async Task StoringUsersMessages(List<Message> messages)
         {
-            var ids = new List<int> { 42, 43, };
-            var results = _dataContext.Contacts.Where(x => ids.Contains(x.ContactID)).ToList();
+            
             await _dataContext.BulkInsertAsync(messages);
             
         }

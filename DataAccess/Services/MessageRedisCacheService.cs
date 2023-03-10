@@ -5,6 +5,7 @@ using SpanJson;
 using Presentation.ViewModel.Messages;
 using Business_Core.Some_Data_Classes;
 using Business_Core.FunctionParametersClasses;
+using Business_Core;
 
 namespace DataAccess.Services
 {
@@ -24,7 +25,7 @@ namespace DataAccess.Services
 
 
 
-        public async Task<List<Message>> SaveMessagesInRedisAsync(ClientMessageRedis clientMessage, string groupId)
+        public async Task<StoringMessagesReturnType> SaveMessagesInRedisAsync(ClientMessageRedis clientMessage, string groupId)
         {
 
             var redisDb = _redis.GetDatabase();
@@ -67,12 +68,32 @@ namespace DataAccess.Services
                     usersAllMessagesList.AddRange(singleConversationAllMessagesList);
                 }
 
+
+                
+
                 // calling message service:
-                return usersAllMessagesList;
+                return new StoringMessagesReturnType
+                {
+                    StoringAllNewMessagesInDb = usersAllMessagesList,
+                    ContactIsInConversationContact = false
+                };
             }
 
+            // when new message is 1 or first time sended after two days passed then go to db and check the contact columns 
+            // ConnectedIsMatch if it is true then dont do update other do it
+            if (await redisDb.ListLengthAsync($"{groupId}:New") == 1) 
+            return new StoringMessagesReturnType
+            {
+                StoringAllNewMessagesInDb = new List<Message>(),
+                ContactIsInConversationContact = true
+            };
 
-            return new List<Message>();
+
+            return new StoringMessagesReturnType
+            {
+                StoringAllNewMessagesInDb = new List<Message>(),
+                ContactIsInConversationContact = false
+            };
 
         }
 

@@ -93,8 +93,6 @@ namespace DataAccess.Services
             await _unitOfWork.CommitAsync();
         }
 
-
-
         #endregion
 
         public async Task<string> VerifyingVerificationCodeAsync(string email, string entererdVerificationCode)

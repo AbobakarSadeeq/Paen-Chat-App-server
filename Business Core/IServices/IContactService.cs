@@ -16,5 +16,7 @@ namespace Business_Core.IServices
         Task EditSingleContactAsync(Contact contact);
         Task BlockingSingleContactAsync(int contactId);
         Task UnlocakingSingleContactAsync(int contactId);
+
+        Task AddConversationContactToConversationListAsync(string groupId);
     }
 }

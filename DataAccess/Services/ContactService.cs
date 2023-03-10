@@ -63,5 +63,11 @@ namespace DataAccess.Services
             await _unitOfWork._contactRepository.UnlocakingContactAsync(contactId);
             await _unitOfWork.CommitAsync();
         }
+
+        public async Task AddConversationContactToConversationListAsync(string groupId)
+        {
+            await _unitOfWork._contactRepository.AddContactConversationToConversationList(groupId);
+            await _unitOfWork.CommitAsync();
+        }
     }
 }

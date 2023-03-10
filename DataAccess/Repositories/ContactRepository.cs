@@ -181,5 +181,16 @@ namespace DataAccess.Repositories
             _DataContext.Contacts.Update(findingContact);
 
         }
+
+        public async Task AddContactConversationToConversationList(string conversationGroupId)
+        {
+            var findingSingleConversationUsers = await _DataContext.Contacts.Where(a=>a.UserGroupPrivateConnectionId == conversationGroupId).ToListAsync();
+            if(findingSingleConversationUsers[0].ConnectedInMessages == false)
+            {
+                findingSingleConversationUsers[0].ConnectedInMessages = true;
+                findingSingleConversationUsers[1].ConnectedInMessages = true;
+            }
+            _DataContext.Contacts.UpdateRange(findingSingleConversationUsers);
+        }
     }
 }

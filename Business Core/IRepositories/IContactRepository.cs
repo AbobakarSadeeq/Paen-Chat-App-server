@@ -16,5 +16,7 @@ namespace Business_Core.IRepositories
         Task EditContactAsync(Contact contact);
         Task BlockingContactAsync(int contactId);
         Task UnlocakingContactAsync(int contactId);
+
+        Task AddContactConversationToConversationList(string conversationGroupId);
     }
 }

@@ -52,25 +52,14 @@ namespace paen_chat_app_server.Controllers
             return Ok();
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("{userId}")] // correcto
         public async Task<IActionResult> GetSingleUserContacts(int userId)
         {
             var findingSingleUserContacts = await _contactService.GetSingleUserAllContactsAsync(userId);
             return Ok(findingSingleUserContacts);
         }
 
-
-
-        // this will execute when chat app is opend and if user is in the converstion list then it will fetch all those users then fetch all messages of each user required to change fetching messages.
-        [HttpGet("ListOfChatConnectedWithSingleUser/{userId}")]
-        public async Task<IActionResult> ListOfChatConnectedWithSingleUser(int userId)
-        {
-            //var fetchingAllConnectedChatOfSingleUser = await _contactService.ListOfAllChatConnectedWithSingleUserAsync(userId);
-            //return Ok(fetchingAllConnectedChatOfSingleUser);
-            return Ok();
-        }
-
-        [HttpPut("EditContact")]
+        [HttpPut("EditContact")] // correcto
         public async Task<IActionResult> EditContact(EditContactViewModel viewModel)
         {
             var convertingToEntity = _mapper.Map<Contact>(viewModel);
@@ -78,14 +67,14 @@ namespace paen_chat_app_server.Controllers
             return Ok();
         }
 
-        [HttpGet("BlockingContact/{contactId}")]
+        [HttpGet("BlockingContact/{contactId}")]  // correcto
         public async Task<IActionResult> BlockingContact(int contactId)
         {
             await _contactService.BlockingSingleContactAsync(contactId);
             return Ok();
         }
 
-        [HttpGet("UnlockingContact/{contactId}")]
+        [HttpGet("UnlockingContact/{contactId}")] // correcto
         public async Task<IActionResult> UnlockingContact(int contactId)
         {
             await _contactService.UnlocakingSingleContactAsync(contactId);

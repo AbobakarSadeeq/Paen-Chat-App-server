@@ -2,6 +2,7 @@
 using Business_Core.IUnitOfWork;
 using DataAccess.DataContext_Class;
 using DataAccess.Repositories;
+using EFCore.BulkExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,12 @@ namespace DataAccess.UnitOfWork
         public void Dispose()
         {
             _DataContext.Dispose();
+        }
+
+        public async Task BulkCommitAsync()
+        {
+             await _DataContext.BulkSaveChangesAsync();
+
         }
     }
 }

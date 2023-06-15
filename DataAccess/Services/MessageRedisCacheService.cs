@@ -75,7 +75,7 @@ namespace DataAccess.Services
                 return new StoringMessagesReturnType
                 {
                     StoringAllNewMessagesInDb = usersAllMessagesList,
-                    ContactIsInConversationContact = false
+                    ContactIsInConversationContactList = false
                 };
             }
 
@@ -85,14 +85,14 @@ namespace DataAccess.Services
             return new StoringMessagesReturnType
             {
                 StoringAllNewMessagesInDb = new List<Message>(),
-                ContactIsInConversationContact = true
+                ContactIsInConversationContactList = true
             };
 
 
             return new StoringMessagesReturnType
             {
                 StoringAllNewMessagesInDb = new List<Message>(),
-                ContactIsInConversationContact = false
+                ContactIsInConversationContactList = false
             };
 
         }
@@ -120,9 +120,28 @@ namespace DataAccess.Services
         }
         private async Task<List<Message>> StoringNewMessagesListIntoOldMessagesListInRedisAsync(string groupId, IDatabase redisDb)
         {
+
+            // changes here
+            if (await redisDb.ListLengthAsync($"{groupId}:New") == 1 &&
+               await redisDb.ListLengthAsync($"{groupId}:Old") == 0)
+            {
+                var singleMessageObj = await redisDb.ListRangeAsync($"{groupId}:New", 0, -1);
+                await redisDb.ListLeftPushAsync($"{groupId}:Old", singleMessageObj);
+                await redisDb.ListLeftPopAsync($"{groupId}:New");
+                return new List<Message>();
+
+            }
+
             var sourceNewRedisList = await redisDb.ListRangeAsync($"{groupId}:New", 0, -1);
             Array.Reverse(sourceNewRedisList);
             await redisDb.ListLeftPushAsync($"{groupId}:Old", sourceNewRedisList);
+
+
+
+
+
+
+
             return ConvertingSingleConversationAllMessagesToDbMessagesFormate(sourceNewRedisList);
 
 

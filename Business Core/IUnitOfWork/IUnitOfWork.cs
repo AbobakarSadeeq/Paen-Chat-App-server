@@ -14,6 +14,7 @@ namespace Business_Core.IUnitOfWork
         public IMessageRepository _messageRepository { get; }
 
         Task<int> CommitAsync();
+        Task BulkCommitAsync();
         void Dispose();
     }
 }

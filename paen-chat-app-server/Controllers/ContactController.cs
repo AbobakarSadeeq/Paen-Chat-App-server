@@ -47,9 +47,9 @@ namespace paen_chat_app_server.Controllers
 
             };
 
-            await _contactService.AddingContactAsync(addContact);
+            var newContact = await _contactService.AddingContactAsync(addContact);
 
-            return Ok();
+            return Ok(newContact);
         }
 
         [HttpGet("{userId}")] // correcto
@@ -78,6 +78,13 @@ namespace paen_chat_app_server.Controllers
         public async Task<IActionResult> UnlockingContact(int contactId)
         {
             await _contactService.UnlocakingSingleContactAsync(contactId);
+            return Ok();
+        }
+
+        [HttpGet("MakeValidConnectedInMessageBetweenUser/{groupId}")]
+        public async Task<IActionResult> MakeTrueConnectedInMessageBetweenUser(string groupId)
+        {
+            await _contactService.AddConversationContactToConversationListAsync(groupId);
             return Ok();
         }
 

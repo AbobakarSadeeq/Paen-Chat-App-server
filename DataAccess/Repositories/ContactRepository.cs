@@ -32,7 +32,7 @@ namespace DataAccess.Repositories
             return "";
         }
 
-        public async Task AddContactAsync(Contact contact)
+        public async Task<object> AddContactAsync(Contact contact)
         {
 
             // first check the given contact is a user or not means using is he/she using it or not.
@@ -74,13 +74,28 @@ namespace DataAccess.Repositories
             {
 
                 await _DataContext.Contacts.AddRangeAsync(addContact);
+                await _DataContext.SaveChangesAsync();
 
             }
             catch (DbUpdateException ex) // if unique value is founded in contact number then update the contact value there.
             {
                 addContact[0].UserGroupPrivateConnectionId = addContact[0].UserGroupPrivateConnectionId + addContact[0].UserGroupPrivateConnectionId[addContact[0].UserGroupPrivateConnectionId.Length - 1];
                 await _DataContext.Contacts.AddRangeAsync(addContact);
+                await _DataContext.SaveChangesAsync();
             }
+
+            return new
+            {
+                ContactName = addContact[0].FirstName + " " + addContact[0].LastName,
+                AboutStatus = isContactIsValidUser == null ? "": isContactIsValidUser.About,
+                BlockContact = addContact[0].Block_Contact,
+                ConnectedInMessages = addContact[0].ConnectedInMessages,
+                ContactId = addContact[0].ContactID,
+                PhoneNumber = addContact[0].PhoneNumber,
+                UserId = isContactIsValidUser == null ? 0 : isContactIsValidUser.UserID,
+                VerifiedContactUser = addContact[0].Verified_Contact,
+                UserImage = isContactIsValidUser == null ? "": isContactIsValidUser.ProfilePhotoUrl,
+            };
         }
 
         #endregion
@@ -123,7 +138,8 @@ namespace DataAccess.Repositories
                                          AboutStatus = rightTable.About == null ? null : rightTable.About,
                                          UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
                                          UserId = rightTable.UserID == null ? 0 : rightTable.UserID,
-                                         ConnectedInMessages = c.ConnectedInMessages
+                                         ConnectedInMessages = c.ConnectedInMessages,
+                                         groupId = c.UserGroupPrivateConnectionId
                                      }).ToListAsync();
             return RightJoining;
         }
@@ -182,15 +198,23 @@ namespace DataAccess.Repositories
 
         }
 
-        public async Task AddContactConversationToConversationList(string conversationGroupId)
+        public async Task ConnectBothUserInConnectedMessageSection(string conversationGroupId)
         {
-            var findingSingleConversationUsers = await _DataContext.Contacts.Where(a=>a.UserGroupPrivateConnectionId == conversationGroupId).ToListAsync();
-            if(findingSingleConversationUsers[0].ConnectedInMessages == false)
+            var findingSingleConversationUsers = await _DataContext.Contacts.Where(a=>a.UserGroupPrivateConnectionId == conversationGroupId)
+                .Take(2).ToListAsync();
+            if(findingSingleConversationUsers[0].ConnectedInMessages == false ||
+                findingSingleConversationUsers[1].ConnectedInMessages == false)
             {
                 findingSingleConversationUsers[0].ConnectedInMessages = true;
                 findingSingleConversationUsers[1].ConnectedInMessages = true;
             }
             _DataContext.Contacts.UpdateRange(findingSingleConversationUsers);
         }
+
+  
+
+            
+            
+        
     }
 }

@@ -69,9 +69,15 @@ namespace paen_chat_app_server.Controllers
       
 
         [HttpGet]
-        public async Task<IActionResult> GetMessagesOfSingleConversation(SingleConversationMessagesParams fetchingSpecificMessageParams)
+        public async Task<IActionResult> GetMessagesOfSingleConversation([FromQuery] SingleConversationMessagesParams fetchingSpecificMessageParams)
         {
-
+            // fetchingDataStorage = 1 => fetching data from the new list from redis 
+            // fetchingDataStorage = 2 => fetching data from the old list from redis 
+            // fetchingDataStorage = 3 => fetching data from the ms-sql-database 
+            // when change storage 
+            // reset lastCOunt
+            // reset scroll to zero
+            // if lastCOunt 30 and storage not change then change scroll only and lastCOunt to 0 again
             var fetchingUserMessages = await _redisMessageCacheService.FetchingSingleConversationUsersMessagesFromRedisAsync(fetchingSpecificMessageParams);
             // fetching messages from redis
             if (fetchingUserMessages.FetchedMessagesList.Count > 0)

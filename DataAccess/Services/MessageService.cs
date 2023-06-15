@@ -27,7 +27,7 @@ namespace DataAccess.Services
         public async Task StoringUsersMessagesAsync(List<Message> usersAllMessagesList)
         {
             await _unitOfWork._messageRepository.StoringUsersMessages(usersAllMessagesList);
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.BulkCommitAsync();
         }
     }
 }

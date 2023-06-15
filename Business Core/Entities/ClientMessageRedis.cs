@@ -11,8 +11,8 @@ namespace Business_Core.Entities
         public int? SenderId { get; set; }
         public int? ReceiverId { get; set; }
         public string? UserMessage { get; set; } // by default null
-        public string? MessageTimeStamp { get; set; } = DateTime.Now.ToString("hh:mm tt");
-        public string? MessageDateStamp { get; set; } = DateTime.Now.ToShortDateString();
+        public string? MessageTimeStamp { get; set; }
+        public string? MessageDateStamp { get; set; }
         public bool MessageSeen { get; set; }
     }
 }

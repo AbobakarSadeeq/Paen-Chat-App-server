@@ -14,6 +14,6 @@ namespace Business_Core.IServices
         Task<string> VerifyingVerificationCodeAsync(string email, string entererdVerificationCode);
         Task<object> AuthorizedUserInfoAsync(string token);
         Task<object> UserProfileInfoAsync(int userId);
-        Task AddUserProfileAsync(AddUserInfo userData);
+        Task<AddUserInfo> AddUserProfileAsync(AddUserInfo userData);
     }
 }

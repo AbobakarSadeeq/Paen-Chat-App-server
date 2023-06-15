@@ -112,7 +112,7 @@ namespace DataAccess.Services
             return await _unitOfWork._userRepository.FetchingUserProfileInfoAsync(userId);
         }
 
-        public async Task AddUserProfileAsync(AddUserInfo userData)
+        public async Task<AddUserInfo> AddUserProfileAsync(AddUserInfo userData)
         {
            if(userData.File != null)
             {
@@ -132,6 +132,8 @@ namespace DataAccess.Services
             }
            await _unitOfWork._userRepository.AddingUserInfoAsync(userData);
            await _unitOfWork.CommitAsync();
+
+            return userData;
         }
     }
 }

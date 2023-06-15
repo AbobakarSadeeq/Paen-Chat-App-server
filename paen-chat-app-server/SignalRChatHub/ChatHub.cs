@@ -1,47 +1,81 @@
 ﻿using Business_Core.Entities;
 using DataAccess.DataContext_Class;
 using Microsoft.AspNetCore.SignalR;
+using Presentation.ViewModel.Messages;
 using Presentation.ViewModel.UserHub;
+using Business_Core.IServices;
+using Business_Core.FunctionParametersClasses;
+using AutoMapper;
 
 namespace paen_chat_app_server.SignalRChatHub
 {
     public class ChatHub : Hub
     {
-        private readonly DataContext _dataContext;
-         private HashSet<UsersHub> connectedUsers = new HashSet<UsersHub>();
-        public ChatHub(DataContext dataContext)
+        private readonly IMessageService _messageService;
+        private readonly IMapper _mapper;
+        private readonly IMessageRedisCacheService _redisMessageCacheService;
+        private readonly IContactService _contactService;
+        public ChatHub(
+            IMessageService messageService,
+            IMapper mapper,
+            IMessageRedisCacheService redisMessageCacheService,
+            IContactService contactService)
         {
-            _dataContext = dataContext;
+            _messageService = messageService;
+            _mapper = mapper;
+            _redisMessageCacheService = redisMessageCacheService;
+            _contactService = contactService;
         }
-        //public async Task SendMessage(string userId, string userName, string message)
-        //{
-        //    var identifier = Context.UserIdentifier;
-        //    await Clients.All.SendAsync("ReceiveMessage", userId, message);
-        //}
-
-       
+        
 
 
-        public async Task JoinGroup(string groupName, string userId)
+        public async Task ConnectingSingleUserOfSingleContactWithTheirUniqueGroupIdForRealTimeMessaging(string groupName, string userId)
         {
-            // if group not found then it will make automatically for you.
-            // if user is not there then add user to group
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            // sending message to group about user has been joined
-            await Clients.Group(groupName).SendAsync("UserJoinGroup", userId, groupName);
-            // anyone is connecting to the group that must havve a default value which should not store 
-            //await Clients.Groups(groupName).SendAsync("DefaultValue", "defaultVal", userId);
+            // below code will be execute the front-side code for you or front-side function and for now not required yeah!
+            //await Clients.Group(groupName).SendAsync("UserSingleContactIsConnectedWithTheirsGroup", userId, groupName);
 
 
         }
 
 
 
-        public async Task SendMessageToGroup(Message message)
+        public async Task SendMessageToGroup(ClientSingleMessageViewModel singleMessage)
         {
-            await Clients.Group("sadf").SendAsync("SendMessage", message);
+           // await Clients.Group(singleMessage.GroupId).SendAsync("SendMessage", singleMessage.clientMessageRedis);
+            // now i have to call the redis here to store the message in redis databaase
+            await StoringMessageAsync(singleMessage);
 
+            // call the client side function for to show it to the receiver user
+ 
+            await Clients.Group(singleMessage.GroupId).SendAsync("ReceiveingSenderMessageFromConnectedContactUser", singleMessage);
         }
+
+        public async Task StoringMessageAsync(ClientSingleMessageViewModel clientMessageViewModel)
+        {
+            var storingAllNewMessagesInDb = await _redisMessageCacheService.SaveMessagesInRedisAsync(clientMessageViewModel.clientMessageRedis, clientMessageViewModel.GroupId);
+
+            // need to have a signal about is that
+
+            // above line is storing data in db after 2 days passed.
+            // above line storing data in new message list in redis.
+            // above line stroing data in old list in redis.
+            // above line is making the new list empty and when it is stored inside the old list in redis.
+
+            if (storingAllNewMessagesInDb.StoringAllNewMessagesInDb.Count > 0)
+            {
+                await _messageService.StoringUsersMessagesAsync(storingAllNewMessagesInDb.StoringAllNewMessagesInDb);
+                // here i am using the bulk insert of EF core which will be store alot of list data in fast way.
+            }
+
+            if (storingAllNewMessagesInDb.ContactIsInConversationContactList == true)
+            {
+                await _contactService.AddConversationContactToConversationListAsync(clientMessageViewModel.GroupId);
+            }
+        }
+
+
+
 
         public async Task RemoveUserFromGroup(string groupName)
         {
@@ -57,18 +91,7 @@ namespace paen_chat_app_server.SignalRChatHub
 
         
 
-        public async Task OnConnectedUserAsync(int userId, string userName)
-        {
-            connectedUsers.Add(new UsersHub
-            {
-                UserId = userId,
-                UserName = userName,
-                ConnectionId = Context.ConnectionId,
-            });
-
-            // it is used for to tell how many are connected to hub or group
-             
-        }
+        
 
 
         public async Task UserTryingToDisconnecting(List<string> groupsName, string disconnectingUserId)

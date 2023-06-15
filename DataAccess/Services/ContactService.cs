@@ -25,10 +25,11 @@ namespace DataAccess.Services
             return await _unitOfWork._contactRepository.ContactExistFound(contact);
         }
 
-        public async Task AddingContactAsync(Contact contact)
+        public async Task<object> AddingContactAsync(Contact contact)
         {
-            await _unitOfWork._contactRepository.AddContactAsync(contact);
-            await _unitOfWork.CommitAsync();
+           var addedContactData =  await _unitOfWork._contactRepository.AddContactAsync(contact);
+           // await _unitOfWork.CommitAsync();
+            return addedContactData;
         }
         #endregion
 
@@ -66,7 +67,7 @@ namespace DataAccess.Services
 
         public async Task AddConversationContactToConversationListAsync(string groupId)
         {
-            await _unitOfWork._contactRepository.AddContactConversationToConversationList(groupId);
+            await _unitOfWork._contactRepository.ConnectBothUserInConnectedMessageSection(groupId);
             await _unitOfWork.CommitAsync();
         }
     }

@@ -10,7 +10,7 @@ namespace Business_Core.IServices
     public interface IContactService
     {
         Task<string> ContactFoundAsync(int userId, string phoneNumber);
-        Task AddingContactAsync(Contact contact);
+        Task<object> AddingContactAsync(Contact contact);
         Task<object> GetSingleUserAllContactsAsync(int userId);
         Task<object> ListOfAllChatConnectedWithSingleUserAsync(int userId);
         Task EditSingleContactAsync(Contact contact);

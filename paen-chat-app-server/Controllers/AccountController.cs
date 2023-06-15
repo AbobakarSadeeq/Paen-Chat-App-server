@@ -73,8 +73,8 @@ namespace paen_chat_app_server.Controllers
         public async Task<IActionResult> AddingUserProfileData([FromForm] AddUserInfoViewModel addUserInfo)
         {
             var convertingToEntity = _mapper.Map<AddUserInfo>(addUserInfo);
-            await _userService.AddUserProfileAsync(convertingToEntity);
-            return Ok();
+           var userUpdatedInfo = await _userService.AddUserProfileAsync(convertingToEntity);
+            return Ok(userUpdatedInfo); // selected this action
 
         }
 

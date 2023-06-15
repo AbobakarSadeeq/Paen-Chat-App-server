@@ -10,6 +10,6 @@ namespace Presentation.ViewModel.Messages
     public class ClientSingleMessageViewModel
     {
         public ClientMessageRedis  clientMessageRedis { get; set; }
-        public string GroupId { get; set; } = "";
+        public string GroupId { get; set; }
     }
 }

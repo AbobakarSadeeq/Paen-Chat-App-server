@@ -176,3 +176,4 @@ C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-ser
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Npgsql.dll
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\bin\Debug\net6.0\SQLitePCLRaw.core.dll
+C:\Users\Abobakar Sadeeq\Documents\GitHub\Paen-Chat-App-server\paen-chat-app-server\obj\Debug\net6.0\paen-chat-app-server.MvcApplicationPartsAssemblyInfo.cs

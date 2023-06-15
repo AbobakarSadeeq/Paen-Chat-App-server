@@ -10,7 +10,7 @@ namespace Business_Core
     public class StoringMessagesReturnType
     {
         public List<Message> StoringAllNewMessagesInDb { get; set; }
-        public bool ContactIsInConversationContact { get; set; }
+        public bool ContactIsInConversationContactList { get; set; }
         public StoringMessagesReturnType()
         {
             StoringAllNewMessagesInDb = new List<Message>();

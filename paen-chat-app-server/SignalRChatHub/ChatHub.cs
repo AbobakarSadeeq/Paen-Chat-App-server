@@ -14,19 +14,62 @@ namespace paen_chat_app_server.SignalRChatHub
         private readonly IMessageService _messageService;
         private readonly IMapper _mapper;
         private readonly IMessageRedisCacheService _redisMessageCacheService;
+        private readonly IUserRedisCacheService _redisUserCacheService;
         private readonly IContactService _contactService;
         public ChatHub(
             IMessageService messageService,
             IMapper mapper,
             IMessageRedisCacheService redisMessageCacheService,
-            IContactService contactService)
+            IContactService contactService,
+            IUserRedisCacheService redisUserCacheService)
         {
             _messageService = messageService;
             _mapper = mapper;
             _redisMessageCacheService = redisMessageCacheService;
+            _redisUserCacheService = redisUserCacheService;
             _contactService = contactService;
         }
+
+
+        //  When connection is ON then first method inside the hub-class this method execute.
+        public async Task OnCustomConnectedAsync(string userId)
+        {
+            // whose is connencted or become logged-in then add to redis about user become online;
+            List<string> userConnectedContactsGroupId = await _redisUserCacheService.GetUserConnectedContactsGroupIdFromRedisHashInValidFormateAsync(userId);
+            foreach (var singleGroupId in userConnectedContactsGroupId)
+            {
+                await Clients.Group(singleGroupId).SendAsync("UserBecomeOnline", singleGroupId, userId);
+
+            }
+
+        }
+
+        //  When connection is OFF then first method inside the hub-class this method execute.
         
+
+        public async override Task OnDisconnectedAsync(Exception? exception)
+        {
+           var queryString =  Context.GetHttpContext().Request.QueryString.Value;
+           int startIndex = queryString.IndexOf('=') + 1;
+           int endIndex = queryString.Length;
+           string userId = queryString.Substring(startIndex, endIndex - startIndex);
+
+            // removing the id from set because of user become offline
+            await _redisUserCacheService.UserAvailabilityStatusRemoveFromSetRedis(userId);
+
+            // remove the hash data as well and that userId:[groupId]
+            List<string> userConnectedContactsGroupId = await _redisUserCacheService.GetUserConnectedContactsGroupIdFromRedisHashInValidFormateAsync(userId);
+
+            foreach (var singleGroupId in userConnectedContactsGroupId)
+            {
+                await Clients.Group(singleGroupId).SendAsync("UserBecomeOffline", singleGroupId, userId);
+            }
+
+            // removed the user all connected contacts from redis hash ds
+            await _redisUserCacheService.RemoveUserConnectedContactsGroupIdFromRedisHashAsync(userId);
+
+
+        }
 
 
         public async Task ConnectingSingleUserOfSingleContactWithTheirUniqueGroupIdForRealTimeMessaging(string groupName, string userId)
@@ -42,8 +85,9 @@ namespace paen_chat_app_server.SignalRChatHub
 
         public async Task SendMessageToGroup(ClientSingleMessageViewModel singleMessage)
         {
-           // await Clients.Group(singleMessage.GroupId).SendAsync("SendMessage", singleMessage.clientMessageRedis);
+            // await Clients.Group(singleMessage.GroupId).SendAsync("SendMessage", singleMessage.clientMessageRedis);
             // now i have to call the redis here to store the message in redis databaase
+
             await StoringMessageAsync(singleMessage);
 
             // call the client side function for to show it to the receiver user
@@ -83,11 +127,7 @@ namespace paen_chat_app_server.SignalRChatHub
             await Clients.Group(groupName).SendAsync("UserLeftGroup", $"{Context.ConnectionId} has left the group {groupName}.");
         }
 
-        //  When connection is ON then first method inside the hub-class this method execute.
-        public override Task OnConnectedAsync()
-        {
-            return base.OnConnectedAsync();
-        }
+     
 
         
 
@@ -103,16 +143,6 @@ namespace paen_chat_app_server.SignalRChatHub
         }
 
 
-        public override Task OnDisconnectedAsync(Exception? exception)
-        {
-            // whenever user disconnected then send the message to other user whose is connected with him/her
-
-
-
-
-
-            return base.OnDisconnectedAsync(exception);
-        }
 
 
 

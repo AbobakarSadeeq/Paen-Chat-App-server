@@ -1,5 +1,6 @@
 ﻿using Business_Core.Entities;
 using Business_Core.IRepositories;
+using Business_Core.Some_Data_Classes;
 using DataAccess.DataContext_Class;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -119,7 +120,7 @@ namespace DataAccess.Repositories
 
         }
 
-        public async Task<object> GetSingleUserContactsAsync(int userId)
+        public async Task<List<FetchingSingleUserContacts>> GetSingleUserContactsAsync(int userId)
         {
             // performing the right joining and it is same as sql query
             // if any right table does not found that data where we are joining on it then we have to give the condition on it otherwise error like if contact on left table is not found that is on right then show left table show null and show right table its data 
@@ -128,7 +129,7 @@ namespace DataAccess.Repositories
                                      on c.PhoneNumber equals u.ContactNumber into bothTableData
                                      from rightTable in bothTableData.DefaultIfEmpty()
                                      where c.UserId == userId
-                                     select new
+                                     select new FetchingSingleUserContacts
                                      {
                                          ContactId = c.ContactID,
                                          ContactName = c.FirstName + " " + c.LastName,

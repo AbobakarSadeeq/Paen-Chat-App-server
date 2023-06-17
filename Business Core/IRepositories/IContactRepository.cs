@@ -1,4 +1,5 @@
 ﻿using Business_Core.Entities;
+using Business_Core.Some_Data_Classes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Business_Core.IRepositories
     {
         Task<string> ContactExistFound(Contact contact);
         Task<object> AddContactAsync(Contact contact);
-        Task<object> GetSingleUserContactsAsync(int userId);
+        Task<List<FetchingSingleUserContacts>> GetSingleUserContactsAsync(int userId);
         Task<object> ListOfChatConnectedWithSingleUserAsync(int userId);
         Task EditContactAsync(Contact contact);
         Task BlockingContactAsync(int contactId);

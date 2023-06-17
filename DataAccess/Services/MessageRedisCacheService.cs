@@ -29,7 +29,6 @@ namespace DataAccess.Services
         {
 
             var redisDb = _redis.GetDatabase();
-
             var convertingObjectIntoSerializeObject = ConvertingSingleSendedMessageObjectIntoString(clientMessage);
 
             await StoringSingleNewMessageIntoNewConversationRedisListAsync(convertingObjectIntoSerializeObject, redisDb, groupId);

@@ -11,6 +11,7 @@ namespace paen_chat_app_server.Controllers
     public class ContactController : ControllerBase
     {
         private readonly IContactService _contactService;
+        
         private readonly IMapper _mapper;
         public ContactController(IContactService contactService, IMapper mapper)
         {

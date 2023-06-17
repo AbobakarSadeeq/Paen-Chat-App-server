@@ -1,6 +1,8 @@
 ﻿using Business_Core.Entities;
 using Business_Core.IServices;
 using Business_Core.IUnitOfWork;
+using Business_Core.Some_Data_Classes;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +14,15 @@ namespace DataAccess.Services
     public class ContactService : IContactService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserRedisCacheService _redisUserCacheService;
 
-        public ContactService(IUnitOfWork unitOfWork)
+
+        public ContactService(IUnitOfWork unitOfWork, IConnectionMultiplexer redis,
+            IUserRedisCacheService redisUserCacheService)
         {
             _unitOfWork = unitOfWork;
+            _redisUserCacheService = redisUserCacheService;
+
         }
 
         #region addContactService
@@ -47,10 +54,45 @@ namespace DataAccess.Services
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<object> GetSingleUserAllContactsAsync(int userId)
+        public async Task<List<FetchingSingleUserContacts>> GetSingleUserAllContactsAsync(int userId)
         {
-           return await _unitOfWork._contactRepository.GetSingleUserContactsAsync(userId);
+           var contactList = await _unitOfWork._contactRepository.GetSingleUserContactsAsync(userId);
+
+            // storing data about i become online and set data inside the redis
+           await _redisUserCacheService.UserAvailabilityStatusAddToSetRedis(userId.ToString());
+            List<string> verifiedContactsGroupId = new List<string>();
+            
+            // below is checking which user contacct is online
+            // now i have to store the connected and valid all using group Inside the hash ds in redis
+            foreach (var singleContact in contactList)
+            {
+                if(singleContact.VerifiedContactUser == true &&
+                  await _redisUserCacheService.UserAvailabilityStatusChecking(singleContact.UserId.ToString()) == true)
+                {
+                    // if Id become found in redis then consider it online
+                    singleContact.UserAvailabilityStatus = true;
+
+                }else
+                {
+                    // if Id become not found at redis then consider it offline
+                    singleContact.UserAvailabilityStatus = false;
+                }
+
+
+                // now storing the data inside the hash ds
+
+                if(singleContact.VerifiedContactUser == true)
+                {
+                    verifiedContactsGroupId.Add(singleContact.groupId);
+                }
+
+            }
+
+            await _redisUserCacheService.StoringUserConnectedContactsGroupIdToRedisHashAsync(verifiedContactsGroupId, userId.ToString());
+
+            return contactList;
         }
+
 
         public async Task<object> ListOfAllChatConnectedWithSingleUserAsync(int userId)
         {

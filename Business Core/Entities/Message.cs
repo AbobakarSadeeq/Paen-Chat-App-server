@@ -18,7 +18,8 @@ namespace Business_Core.Entities
 
         public string? UserMessage { get; set; } // by default null
         public DateTime? Created_At { get; set; }
-        public bool MessageSeen { get; set; }
+        public int MessageSeen { get; set; } // 0 => offline, 1 => online, 3 => specific connected with page
+
         public ICollection<MessageAttachment> MessageAttachments { get; set; }
     }
 

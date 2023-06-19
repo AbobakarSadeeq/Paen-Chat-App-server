@@ -86,14 +86,34 @@ namespace paen_chat_app_server.SignalRChatHub
         public async Task SendMessageToGroup(ClientSingleMessageViewModel singleMessage)
         {
             // await Clients.Group(singleMessage.GroupId).SendAsync("SendMessage", singleMessage.clientMessageRedis);
-            // now i have to call the redis here to store the message in redis databaase
-
-            await StoringMessageAsync(singleMessage);
 
             // call the client side function for to show it to the receiver user
+
+            // if user is not logged in then store the data directly on redis and messageSeen become zero
+            if(await _redisUserCacheService.UserAvailabilityStatusChecking(singleMessage.clientMessageRedis.ReceiverId.ToString()) ==
+                false)
+            {
+                // if user-offline then message seen is zero
+               await StoreMessageOnRedis(singleMessage);
+            } 
  
+
+
+
             await Clients.Group(singleMessage.GroupId).SendAsync("ReceiveingSenderMessageFromConnectedContactUser", singleMessage);
         }
+
+        // user become online and founded then this will be inoke from client
+        public async Task StoreMessageOnRedis(ClientSingleMessageViewModel singleMessage)
+        {
+            await StoringMessageAsync(singleMessage);
+            // sending back to sender about the messages-seen has been updated .
+            await Clients.Group(singleMessage.GroupId).SendAsync("SendedMessageSeenUpdated", singleMessage);
+
+
+        }
+
+        
 
         public async Task StoringMessageAsync(ClientSingleMessageViewModel clientMessageViewModel)
         {

@@ -4,6 +4,7 @@ using DataAccess.DataContext_Class;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230619050448_updatedMessageSeen")]
+    partial class updatedMessageSeen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,8 +77,8 @@ namespace DataAccess.Migrations
                     b.Property<DateTime?>("Created_At")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("MessageSeen")
-                        .HasColumnType("int");
+                    b.Property<bool>("MessageSeen")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("ReceiverId")
                         .HasColumnType("int");

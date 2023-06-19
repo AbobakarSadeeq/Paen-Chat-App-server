@@ -13,6 +13,6 @@ namespace Business_Core.Entities
         public string? UserMessage { get; set; } // by default null
         public string? MessageTimeStamp { get; set; }
         public string? MessageDateStamp { get; set; }
-        public bool MessageSeen { get; set; }
+        public int MessageSeen { get; set; } // 0 => offline, 1 => online, 3 => specific connected with page
     }
 }

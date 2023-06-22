@@ -20,6 +20,57 @@ namespace DataAccess.Services
         }
 
 
+        // count unread specfic user messagees
+
+        public async Task<int> CountUnReadSpecficUserMessages(int userId, string groupId)
+        {
+            IDatabase redisDb = _redis.GetDatabase();
+            // only will tell last 30 messages unread recipts only.
+            RedisValue[] messages = await redisDb.ListRangeAsync($"{groupId}:{"New"}", 0, 29);
+
+            int countMessage = 0;
+
+            foreach (var singleMessage in messages)
+            {
+                var singleMessageConversation = JsonSerializer.Generic.Utf16.Deserialize<ClientMessageRedis>(singleMessage);
+                if(singleMessageConversation.ReceiverId == userId && (singleMessageConversation.MessageSeen == 1 || singleMessageConversation.MessageSeen == 0))
+                {
+                    countMessage++;
+                }
+
+            }
+
+            return countMessage;
+        }
+
+        // update the unread message
+
+        public async Task UpdateUnReadMessageMarkedReadedAsync(string groupId)
+        {
+            IDatabase redisDb = _redis.GetDatabase();
+            RedisValue[] messages = await redisDb.ListRangeAsync($"{groupId}:{"New"}", 0, 29);
+            int index = 0;
+            foreach (var singleMessage in messages)
+            {
+                var singleMessageConversation = JsonSerializer.Generic.Utf16.Deserialize<ClientMessageRedis>(singleMessage);
+                if(singleMessageConversation.MessageSeen == 1 || singleMessageConversation.MessageSeen == 0)
+                {
+                    // 2 means message readed.
+                    singleMessageConversation.MessageSeen = 2;
+                    var updatedMessage = JsonSerializer.Generic.Utf16.Serialize(singleMessageConversation);
+                    await redisDb.ListSetByIndexAsync($"{groupId}:{"New"}", index, updatedMessage);
+                }else
+                {
+                    // if 2 is came then it means i have seen this so not make loop through here.
+                    break;
+                }
+
+                index++;
+
+            }
+        }
+
+
 
         // ---------------------------------------------- Storing user messages On redis ----------------------------------------------
 

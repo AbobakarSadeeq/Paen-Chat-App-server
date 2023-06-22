@@ -1,4 +1,5 @@
 ﻿using Business_Core.Entities;
+using Business_Core.FunctionParametersClasses;
 using Business_Core.IServices;
 using Business_Core.IUnitOfWork;
 using Business_Core.Some_Data_Classes;
@@ -15,13 +16,19 @@ namespace DataAccess.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRedisCacheService _redisUserCacheService;
+        private readonly IMessageRedisCacheService _redisMessageCacheService;
+        private readonly IMessageService _messageService;
 
 
         public ContactService(IUnitOfWork unitOfWork, IConnectionMultiplexer redis,
-            IUserRedisCacheService redisUserCacheService)
+            IMessageService messageService,
+            IUserRedisCacheService redisUserCacheService, IMessageRedisCacheService redisMessageCacheService)
         {
             _unitOfWork = unitOfWork;
             _redisUserCacheService = redisUserCacheService;
+            _redisMessageCacheService = redisMessageCacheService;
+            _messageService = messageService;
+
 
         }
 
@@ -81,9 +88,26 @@ namespace DataAccess.Services
 
                 // now storing the data inside the hash ds
 
-                if(singleContact.VerifiedContactUser == true)
+                if(singleContact.VerifiedContactUser == true && singleContact.ConnectedInMessages == true)
                 {
                     verifiedContactsGroupId.Add(singleContact.groupId);
+
+                    // here redis unread messages for that specific user
+                 int count =  await _redisMessageCacheService.CountUnReadSpecficUserMessages(userId, singleContact.groupId);
+                    singleContact.CountUnSeenMessages = count;
+
+                  var singleMessages =   await _messageService.GetSingleConversationAllMessagesFromRedisAndDbAsync(new SingleConversationMessagesParams()
+                    {
+                        user1 = userId,
+                        user2 = singleContact.UserId,
+                        currentScrollingPosition = 1,
+                        groupId = singleContact.groupId,
+                        lastMessagesCount = 0,
+                        UnReadMessages = 0,
+                        fetchingMessagesStorageNo = 1,
+                    });
+
+                    singleContact.lastMessageOfSingleContact = singleMessages.FetchedMessagesList.FirstOrDefault().UserMessage;
                 }
 
             }

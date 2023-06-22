@@ -1,4 +1,6 @@
 ﻿using Business_Core.Entities;
+using Business_Core.FunctionParametersClasses;
+using Business_Core.Some_Data_Classes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,6 @@ namespace Business_Core.IServices
     public interface IMessageService
     {
         Task StoringUsersMessagesAsync(List<Message> usersAllMessagesList);
-        Task<List<Message>> GetSingleConversationMessagesAllListAsync(int user1, int user2);
+        Task<FetchingMessagesForUser> GetSingleConversationAllMessagesFromRedisAndDbAsync(SingleConversationMessagesParams fetchingSpecificMessageParams);
     }
 }

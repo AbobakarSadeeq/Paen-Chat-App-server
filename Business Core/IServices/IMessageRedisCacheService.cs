@@ -9,6 +9,9 @@ namespace Business_Core.IServices
         Task<StoringMessagesReturnType> SaveMessagesInRedisAsync(ClientMessageRedis message, string groupId);
         Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromRedisAsync(SingleConversationMessagesParams funcParams);
         Task<FetchingMessagesForUser> FetchingSingleConversationUsersMessagesFromDb(SingleConversationMessagesParams funcParams, List<Message> dbMessages);
-     
+
+        Task<int> CountUnReadSpecficUserMessages(int userId, string groupId);
+        Task UpdateUnReadMessageMarkedReadedAsync(string groupId);
+
     }
 }

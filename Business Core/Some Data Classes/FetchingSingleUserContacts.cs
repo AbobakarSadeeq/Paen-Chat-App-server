@@ -19,5 +19,7 @@ namespace Business_Core.Some_Data_Classes
         public bool ConnectedInMessages { get; set; }
         public string groupId { get; set; }
         public bool UserAvailabilityStatus { get; set; }
+        public int CountUnSeenMessages { get; set; }
+        public string lastMessageOfSingleContact { get; set; }
     }
 }

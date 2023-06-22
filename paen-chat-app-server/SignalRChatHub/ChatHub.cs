@@ -45,7 +45,6 @@ namespace paen_chat_app_server.SignalRChatHub
         }
 
         //  When connection is OFF then first method inside the hub-class this method execute.
-        
 
         public async override Task OnDisconnectedAsync(Exception? exception)
         {
@@ -71,7 +70,6 @@ namespace paen_chat_app_server.SignalRChatHub
 
         }
 
-
         public async Task ConnectingSingleUserOfSingleContactWithTheirUniqueGroupIdForRealTimeMessaging(string groupName, string userId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
@@ -81,8 +79,6 @@ namespace paen_chat_app_server.SignalRChatHub
 
         }
 
-
-
         public async Task SendMessageToGroup(ClientSingleMessageViewModel singleMessage)
         {
             // await Clients.Group(singleMessage.GroupId).SendAsync("SendMessage", singleMessage.clientMessageRedis);
@@ -90,16 +86,12 @@ namespace paen_chat_app_server.SignalRChatHub
             // call the client side function for to show it to the receiver user
 
             // if user is not logged in then store the data directly on redis and messageSeen become zero
-            if(await _redisUserCacheService.UserAvailabilityStatusChecking(singleMessage.clientMessageRedis.ReceiverId.ToString()) ==
-                false)
+            if(await _redisUserCacheService.UserAvailabilityStatusChecking(singleMessage.clientMessageRedis.ReceiverId.ToString()) == false)
             {
                 // if user-offline then message seen is zero
                await StoreMessageOnRedis(singleMessage);
             } 
  
-
-
-
             await Clients.Group(singleMessage.GroupId).SendAsync("ReceiveingSenderMessageFromConnectedContactUser", singleMessage);
         }
 
@@ -112,8 +104,6 @@ namespace paen_chat_app_server.SignalRChatHub
 
 
         }
-
-        
 
         public async Task StoringMessageAsync(ClientSingleMessageViewModel clientMessageViewModel)
         {
@@ -138,29 +128,35 @@ namespace paen_chat_app_server.SignalRChatHub
             }
         }
 
-
-
-
-        public async Task RemoveUserFromGroup(string groupName)
+        public async Task TickReadedForSenderOfAllSendedMessages(string groupId, int senderId)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("UserLeftGroup", $"{Context.ConnectionId} has left the group {groupName}.");
+            await Clients.Group(groupId).SendAsync("MakeItReadedAllUnReadMessagesFromSenderSide", senderId);
+
         }
 
-     
-
-        
-
-        
 
 
-        public async Task UserTryingToDisconnecting(List<string> groupsName, string disconnectingUserId)
-        {
-            // those groupsName will be used for to send request to those function whose are same and to update their array state
-            // remove that id from js array of other user array list
-            await  Clients.Groups(groupsName).SendAsync("RemoveDisconnectedUserDataFromArray", disconnectingUserId);
-        
-        }
+
+        //public async Task RemoveUserFromGroup(string groupName)
+        //{
+        //    await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        //    await Clients.Group(groupName).SendAsync("UserLeftGroup", $"{Context.ConnectionId} has left the group {groupName}.");
+        //}
+
+
+
+
+
+
+
+
+        //public async Task UserTryingToDisconnecting(List<string> groupsName, string disconnectingUserId)
+        //{
+        //    // those groupsName will be used for to send request to those function whose are same and to update their array state
+        //    // remove that id from js array of other user array list
+        //    await  Clients.Groups(groupsName).SendAsync("RemoveDisconnectedUserDataFromArray", disconnectingUserId);
+
+        //}
 
 
 

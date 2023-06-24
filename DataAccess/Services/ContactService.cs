@@ -107,7 +107,8 @@ namespace DataAccess.Services
                         fetchingMessagesStorageNo = 1,
                     });
 
-                    singleContact.lastMessageOfSingleContact = singleMessages.FetchedMessagesList.FirstOrDefault().UserMessage;
+                    singleContact.lastMessageOfSingleContact = singleMessages.FetchedMessagesList.Count > 0 ?
+                        singleMessages.FetchedMessagesList[0].UserMessage : " ";
                 }
 
             }

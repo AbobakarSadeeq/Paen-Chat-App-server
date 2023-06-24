@@ -49,6 +49,7 @@ namespace DataAccess.Repositories
             {
                 // it means it is a valid user
                 addContact[0].Verified_Contact = true;
+                addContact[0].ConnectedInMessages = true;
 
                 // finding that user Id whos want to connect with the contect
                 var findingUser = await _DataContext.Users.FirstOrDefaultAsync(a => a.UserID == contact.UserId);
@@ -62,7 +63,8 @@ namespace DataAccess.Repositories
                     PhoneNumber = findingUser.ContactNumber,
                     Block_Contact = false,
                     UserId = isContactIsValidUser.UserID,
-                    UserGroupPrivateConnectionId = addContact[0].UserGroupPrivateConnectionId
+                    UserGroupPrivateConnectionId = addContact[0].UserGroupPrivateConnectionId,
+                    ConnectedInMessages = true // which means when a user become connected and it is valid user then add them into connectedInMessages
                 });
 
             }
@@ -135,13 +137,26 @@ namespace DataAccess.Repositories
                                          ContactName = c.FirstName + " " + c.LastName,
                                          PhoneNumber = c.PhoneNumber,
                                          VerifiedContactUser = c.Verified_Contact,
-                                         BlockContact = c.Block_Contact,
                                          AboutStatus = rightTable.About == null ? null : rightTable.About,
                                          UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
                                          UserId = rightTable.UserID == null ? 0 : rightTable.UserID,
+
+
+                                         BlockContact = c.Block_Contact, // this is userItself blocking value like when that same user logged in this will show user-blocks.
+
+
+                                         BlockContactByConnectedUser = rightTable.Contacts.FirstOrDefault(a => a.UserId == rightTable.UserID && a.UserGroupPrivateConnectionId == c.UserGroupPrivateConnectionId).Block_Contact ? 
+                                         rightTable.Contacts.FirstOrDefault(a => a.UserId == rightTable.UserID && a.UserGroupPrivateConnectionId == c.UserGroupPrivateConnectionId).Block_Contact : false, // connected user-block value
+
+
+
                                          ConnectedInMessages = c.ConnectedInMessages,
                                          groupId = c.UserGroupPrivateConnectionId
                                      }).ToListAsync();
+
+
+
+
             return RightJoining;
         }
 

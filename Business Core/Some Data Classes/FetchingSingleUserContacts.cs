@@ -12,7 +12,8 @@ namespace Business_Core.Some_Data_Classes
         public string ContactName { get; set; }
         public string PhoneNumber { get; set; }
         public bool VerifiedContactUser { get; set; }
-        public bool BlockContact { get; set; }
+        public bool BlockContact { get; set; } // user1 block
+        public bool BlockContactByConnectedUser { get; set; } // user2 block
         public string AboutStatus { get; set; }
         public string UserImage { get; set; }
         public int UserId { get; set; }

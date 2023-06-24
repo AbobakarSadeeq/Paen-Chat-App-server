@@ -6,6 +6,7 @@ using Presentation.ViewModel.UserHub;
 using Business_Core.IServices;
 using Business_Core.FunctionParametersClasses;
 using AutoMapper;
+using Business_Core.Some_Data_Classes;
 
 namespace paen_chat_app_server.SignalRChatHub
 {
@@ -134,7 +135,10 @@ namespace paen_chat_app_server.SignalRChatHub
 
         }
 
-
+        public async Task ContactBlockingAndUnlocking(string groupId, int userIdWhoBlockTheContact)
+        {
+            await Clients.Group(groupId).SendAsync("BlockingOrUnlockingContactLive", groupId, userIdWhoBlockTheContact);
+        }
 
 
         //public async Task RemoveUserFromGroup(string groupName)

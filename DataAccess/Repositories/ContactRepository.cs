@@ -39,6 +39,7 @@ namespace DataAccess.Repositories
             // first check the given contact is a user or not means using is he/she using it or not.
             // if you are saying that if user added a contact and not verifyied but after sometime it will be verfiyed and here its not possible to do that because the contact number and user must be first verified.
             var isContactIsValidUser = await _DataContext.Users.FirstOrDefaultAsync(a => a.ContactNumber == contact.PhoneNumber);
+            var findingUser = await _DataContext.Users.FirstOrDefaultAsync(a => a.UserID == contact.UserId);
 
             var addContact = new List<Contact>()
             {
@@ -52,7 +53,6 @@ namespace DataAccess.Repositories
                 addContact[0].ConnectedInMessages = true;
 
                 // finding that user Id whos want to connect with the contect
-                var findingUser = await _DataContext.Users.FirstOrDefaultAsync(a => a.UserID == contact.UserId);
 
                 // adding that user you found its numeber and he/she didnt have your number connection.
 
@@ -87,7 +87,22 @@ namespace DataAccess.Repositories
                 await _DataContext.SaveChangesAsync();
             }
 
-            return new
+            
+            var userWantsToConnectItselfDetail = new
+            {
+                ContactName = " ",
+                AboutStatus = findingUser.About,
+                BlockContact = false,
+                ConnectedInMessages = true,
+                ContactId = addContact[1].ContactID,
+                PhoneNumber = findingUser.ContactNumber,
+                UserId = findingUser.UserID,
+                VerifiedContactUser = true,
+                UserImage = findingUser.ProfilePhotoUrl,
+                groupId = addContact[0].UserGroupPrivateConnectionId
+            };
+
+            var userAddedContactDetail =  new
             {
                 ContactName = addContact[0].FirstName + " " + addContact[0].LastName,
                 AboutStatus = isContactIsValidUser == null ? "": isContactIsValidUser.About,
@@ -98,6 +113,16 @@ namespace DataAccess.Repositories
                 UserId = isContactIsValidUser == null ? 0 : isContactIsValidUser.UserID,
                 VerifiedContactUser = addContact[0].Verified_Contact,
                 UserImage = isContactIsValidUser == null ? "": isContactIsValidUser.ProfilePhotoUrl,
+                groupId = addContact[0].UserGroupPrivateConnectionId,
+                BlockContactByConnectedUser = false,
+                UserAvailabilityStatus = false,
+                LastMessageOfSingleContact = "",
+            };
+
+            return new
+            {
+                UserWantsToConnectItselfDetail = userWantsToConnectItselfDetail != null ? userWantsToConnectItselfDetail : null,
+                UserAddedContactDetail = userAddedContactDetail,
             };
         }
 

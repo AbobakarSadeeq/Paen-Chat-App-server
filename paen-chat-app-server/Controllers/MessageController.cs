@@ -41,7 +41,10 @@ namespace paen_chat_app_server.Controllers
         [HttpPost]
         public async Task<IActionResult> StoringMessage(ClientSingleMessageViewModel clientMessageViewModel)
         {
-          var storingAllNewMessagesInDb =  await _redisMessageCacheService.SaveMessagesInRedisAsync(clientMessageViewModel.clientMessageRedis, clientMessageViewModel.GroupId);
+            
+          
+
+            var storingAllNewMessagesInDb =  await _redisMessageCacheService.SaveMessagesInRedisAsync(clientMessageViewModel.clientMessageRedis, clientMessageViewModel.GroupId);
 
             // need to have a signal about is that
 

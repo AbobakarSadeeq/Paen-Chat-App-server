@@ -7,6 +7,7 @@ using Business_Core.IServices;
 using Business_Core.FunctionParametersClasses;
 using AutoMapper;
 using Business_Core.Some_Data_Classes;
+using Presentation.ViewModel.Contact;
 
 namespace paen_chat_app_server.SignalRChatHub
 {
@@ -42,6 +43,9 @@ namespace paen_chat_app_server.SignalRChatHub
                 await Clients.Group(singleGroupId).SendAsync("UserBecomeOnline", singleGroupId, userId);
 
             }
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, "SelfGroupId" + userId);
+
 
         }
 
@@ -138,6 +142,13 @@ namespace paen_chat_app_server.SignalRChatHub
         public async Task ContactBlockingAndUnlocking(string groupId, int userIdWhoBlockTheContact)
         {
             await Clients.Group(groupId).SendAsync("BlockingOrUnlockingContactLive", groupId, userIdWhoBlockTheContact);
+        }
+
+        public async Task NewContactAddedLive(int goingToSaveContactInUserId, AddContactLiveViewModel newContact)
+        {
+            // await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            await Clients.Group("SelfGroupId" + goingToSaveContactInUserId).SendAsync("AddedByOtherUserContactRefreshing", newContact);
+
         }
 
 

@@ -98,6 +98,17 @@ namespace DataAccess.Services
             long convertingRedisSwitchingMessagesListStringTimeStampToLong = 0;
             if (fetchingMessagesShiftingFromNewToOldListDateFromRedis.HasValue)
                 convertingRedisSwitchingMessagesListStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedis);
+             else
+            {
+                // add cron here if cron variable is zero only for the first user messages.
+                // this will only execute only first time when a firstly first user added to the server
+                // even when time cron is completed then this will also not execute because in condition it saing is it haivng any value
+                var futureTwoDaysTimeStamp = new DateTimeOffset(DateTime.UtcNow.AddDays(2)).ToUnixTimeSeconds();
+                await redisDb.StringSetAsync("ShiftingNewMessageDataTimeSpan", futureTwoDaysTimeStamp);
+                var fetchingMessagesShiftingFromNewToOldListDateFromRedisAgain = await redisDb.StringGetAsync("ShiftingNewMessageDataTimeSpan");
+                convertingRedisSwitchingMessagesListStringTimeStampToLong = long.Parse(fetchingMessagesShiftingFromNewToOldListDateFromRedisAgain);
+
+            }
 
 
             if (convertingRedisSwitchingMessagesListStringTimeStampToLong == currentTimeStamp || currentTimeStamp > convertingRedisSwitchingMessagesListStringTimeStampToLong)
@@ -114,8 +125,12 @@ namespace DataAccess.Services
                 {
                     string correctingGroupIdValue = singleListNameGroupId.ToString().Replace(":New", String.Empty);
                     var singleConversationAllMessagesList = await StoringNewMessagesListIntoOldMessagesListInRedisAsync(correctingGroupIdValue, redisDb);
+                    if(singleConversationAllMessagesList.Count != 0)
+                    {
                     await DeleteNewConversationListAndItsNameInUniqueListFromRedisAsync(correctingGroupIdValue, redisDb);
                     usersAllMessagesList.AddRange(singleConversationAllMessagesList);
+
+                    }
                 }
 
 
@@ -147,10 +162,6 @@ namespace DataAccess.Services
 
         }
 
-        private string ConvertingSingleSendedMessageObjectIntoString(ClientMessageRedis singleMessage)
-        {
-            return JsonSerializer.Generic.Utf16.Serialize(singleMessage);
-        }
 
         private async Task StoringSingleNewMessageIntoNewConversationRedisListAsync(string singleSerializeMessage, IDatabase redisDb, string groupId)
         {
@@ -163,24 +174,19 @@ namespace DataAccess.Services
             await redisDb.SetAddAsync("NewConversationListNames", $"{groupId}:New");
         }
 
-        private async Task DeleteNewConversationListAndItsNameInUniqueListFromRedisAsync(string groupId, IDatabase redisDb)
-        {
-            await redisDb.KeyDeleteAsync($"{groupId}:New");
-            await redisDb.SetRemoveAsync("NewConversationListNames", $"{groupId}:New");
-        }
         private async Task<List<Message>> StoringNewMessagesListIntoOldMessagesListInRedisAsync(string groupId, IDatabase redisDb)
         {
 
-            // changes here
-            if (await redisDb.ListLengthAsync($"{groupId}:New") == 1 &&
-               await redisDb.ListLengthAsync($"{groupId}:Old") == 0)
-            {
-                var singleMessageObj = await redisDb.ListRangeAsync($"{groupId}:New", 0, -1);
-                await redisDb.ListLeftPushAsync($"{groupId}:Old", singleMessageObj);
-                await redisDb.ListLeftPopAsync($"{groupId}:New");
-                return new List<Message>();
+            //// changes here
+            //if (await redisDb.ListLengthAsync($"{groupId}:New") == 1 &&
+            //   await redisDb.ListLengthAsync($"{groupId}:Old") == 0)
+            //{
+            //    var singleMessageObj = await redisDb.ListRangeAsync($"{groupId}:New", 0, -1);
+            //    await redisDb.ListLeftPushAsync($"{groupId}:Old", singleMessageObj);
+            //    await redisDb.ListLeftPopAsync($"{groupId}:New");
+            //    return new List<Message>();
 
-            }
+            //}
 
             var sourceNewRedisList = await redisDb.ListRangeAsync($"{groupId}:New", 0, -1);
             Array.Reverse(sourceNewRedisList);
@@ -198,12 +204,20 @@ namespace DataAccess.Services
 
         }
 
+
+
         private async Task<RedisValue[]> FetchingAllStoringNewMessagesConversationListNamesFromUniqueListInsideRedisAsync(IDatabase redisdatabase)
         {
             var listNamesOfNewConversationList = await redisdatabase.SetMembersAsync("NewConversationListNames");
             return listNamesOfNewConversationList;
 
 
+        }
+
+        private async Task DeleteNewConversationListAndItsNameInUniqueListFromRedisAsync(string groupId, IDatabase redisDb)
+        {
+            await redisDb.KeyDeleteAsync($"{groupId}:New");
+            await redisDb.SetRemoveAsync("NewConversationListNames", $"{groupId}:New");
         }
 
         private List<Message> ConvertingSingleConversationAllMessagesToDbMessagesFormate(RedisValue[] singleListAllMessages)
@@ -225,6 +239,10 @@ namespace DataAccess.Services
             return messages;
         }
 
+        private string ConvertingSingleSendedMessageObjectIntoString(ClientMessageRedis singleMessage)
+        {
+            return JsonSerializer.Generic.Utf16.Serialize(singleMessage);
+        }
 
 
         // --------------------------- LRU --------------------------------------

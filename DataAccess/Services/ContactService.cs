@@ -41,15 +41,16 @@ namespace DataAccess.Services
 
         public async Task<object> AddingContactAsync(Contact contact)
         {
-           var addedContactData =  await _unitOfWork._contactRepository.AddContactAsync(contact);
-           // await _unitOfWork.CommitAsync();
+            var addedContactData =  await _unitOfWork._contactRepository.AddContactAsync(contact);
+            await _unitOfWork.CommitAsync(); 
+            bool isUserOnline = await _redisUserCacheService.UserAvailabilityStatusChecking(contact.UserId.ToString());
+            
             return addedContactData;
         }
         #endregion
 
         public async Task BlockingSingleContactAsync(int contactId)
         {
-
             await _unitOfWork._contactRepository.BlockingContactAsync(contactId);
             await _unitOfWork.CommitAsync();
 

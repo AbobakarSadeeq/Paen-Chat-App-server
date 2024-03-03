@@ -14,5 +14,9 @@ namespace Business_Core.IServices
         Task StoringUserConnectedContactsGroupIdToRedisHashAsync(List<string> contactGroupIds, string userItSelfId);
         Task<List<string>> GetUserConnectedContactsGroupIdFromRedisHashInValidFormateAsync(string userItSelfId);
         Task RemoveUserConnectedContactsGroupIdFromRedisHashAsync(string userItSelfId);
+        Task UserPhoneNumberVerificationSendCodeAsync(string phoneNumber);
+        Task<bool> UserVerifyingSendedCodeAsync(string verificationCode, string phoneNumber);
+
+
     }
 }

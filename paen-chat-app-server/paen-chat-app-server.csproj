@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>paen_chat_app_server</RootNamespace>
+    <UserSecretsId>2bec1ed3-e598-4b48-8a5c-2f47a4925d68</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

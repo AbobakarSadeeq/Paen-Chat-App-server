@@ -79,7 +79,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllHeaders",
           builder =>
           {
-              builder.WithOrigins("http://localhost:3000")
+              builder.WithOrigins("AllowAll")
                      .AllowAnyHeader()
                      .AllowAnyMethod()
                      .AllowCredentials();
@@ -97,10 +97,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
  
-app.UseCors("AllowAllHeaders");
+ app.UseCors("AllowAll");
 
 
 app.UseAuthentication();

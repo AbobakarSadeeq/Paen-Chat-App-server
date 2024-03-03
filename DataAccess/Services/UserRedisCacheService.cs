@@ -40,6 +40,39 @@ namespace DataAccess.Services
 
         }
 
+        public async Task UserPhoneNumberVerificationSendCodeAsync(string phoneNumber)
+        {
+            var redisDb = _redis.GetDatabase();
+            string verificationNumberGenerate = RandomGenerateSixDigitsVerificationCode();
+            await redisDb.HashSetAsync("UserVerificationCodes", new HashEntry[]
+            {
+                new HashEntry(phoneNumber, verificationNumberGenerate)
+            });
+        }
+
+        private string RandomGenerateSixDigitsVerificationCode()
+        {
+            Random random = new Random();
+            StringBuilder randomVerficationPasswordGenerateString = new StringBuilder();
+            for (int i = 0; i < 6; i++)
+            {
+                randomVerficationPasswordGenerateString.Append(random.Next(1, 9));
+            }
+            return randomVerficationPasswordGenerateString.ToString();
+        }
+
+        public async Task<bool> UserVerifyingSendedCodeAsync(string verificationCode, string phoneNumber)
+        {
+            var redisDb = _redis.GetDatabase();
+            var getVerificationCodeByPhoneNumber = await redisDb.HashGetAsync("UserVerificationCodes", phoneNumber);
+            if (verificationCode != getVerificationCodeByPhoneNumber.ToString()) 
+                return false;
+            await redisDb.HashDeleteAsync("UserVerificationCodes", phoneNumber);
+
+            return true;
+
+        }
+
 
         // Redis Hash data 
         public async Task StoringUserConnectedContactsGroupIdToRedisHashAsync(List<string> contactGroupIds, string userItSelfId)
@@ -69,6 +102,6 @@ namespace DataAccess.Services
 
         }
 
-
+       
     }
 }

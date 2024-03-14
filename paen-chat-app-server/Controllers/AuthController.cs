@@ -28,7 +28,6 @@ namespace paen_chat_app_server.Controllers
         public async Task<IActionResult> UserVerifyingSendedCode([FromBody] UserVerification verification)
         {
             bool isUserVerified =  await _userRedisCacheService.UserVerifyingSendedCodeAsync(verification.VerificationCode, verification.PhoneNumber);
-
             return Ok(isUserVerified);
 
         }

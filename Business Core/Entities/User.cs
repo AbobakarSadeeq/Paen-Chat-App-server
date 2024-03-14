@@ -11,26 +11,28 @@ namespace Business_Core.Entities
     public class User
     {
         public int UserID { get; set; }
-        public string? UserName { get; set; }
-        public string? Email { get; set; }
-        public string VerificationPassword { get; set; }
+        public string? FullName { get; set; }
+       // public string? Email { get; set; }
+       // public string VerificationPassword { get; set; }
         public string ContactNumber { get; set; }
-        public string? About { get; set; }
-        public bool EmailVerification { get; set; } // used for when user logging then email is verfiy and logged in then true and when logout then become false and it will be true when user is logged in 
-        public bool isActive { get; set; }
+        public string? AboutStatus { get; set; }
+       // public bool EmailVerification { get; set; } // used for when user logging then email is verfiy and logged in then true and when logout then become false and it will be true when user is logged in 
+       // public bool isActive { get; set; }
 
+        public string? UserGroupPrivateConnectionIds { get; set; }
         /// <summary>
         /// one user have only one profile photo
         /// </summary>
         /// 
         public string? ProfilePhotoUrl { get; set; }
-        public string? PublicId { get; set; }
+      //  public string? PublicId { get; set; }
 
-        public DateTime? Last_Online { get; set; }
-        public DateTime? Created_At { get; set; }
-        public virtual ICollection<Contact> Contacts { get; set; }
-        public virtual ICollection<Message> SenderMessages { get; set; }
-        public virtual ICollection<Message> ReciverMessage { get; set; }
+        public DateTime? LastOnline { get; set; }
+        public DateTime? CreatedAt { get; set; }
+
+       // public virtual ICollection<Contact> Contacts { get; set; }
+     //   public virtual ICollection<Message> SenderMessages { get; set; }
+     //   public virtual ICollection<Message> ReciverMessage { get; set; }
 
     }
 

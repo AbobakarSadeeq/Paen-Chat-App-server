@@ -31,73 +31,74 @@ namespace DataAccess.Repositories
 
         public async Task RegisteringUserAsync(User user, string verificationNumber, string phoneNumber)
         {
-            var findingUserByEmail = await _dataContext.Users.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
-            if (findingUserByEmail != null)
-            {
-                findingUserByEmail.VerificationPassword = verificationNumber;
-                _dataContext.Users.Update(findingUserByEmail);
-            } else
-            {
-                // if email is not found then add the email there and generate the random verifcation password for it and contact number
+           // var findingUserByEmail = await _dataContext.Users.Where(x => x.Email == user.Email).FirstOrDefaultAsync();
+            //if (findingUserByEmail != null)
+            //{
+            //    findingUserByEmail.VerificationPassword = verificationNumber;
+            //    _dataContext.Users.Update(findingUserByEmail);
+            //} else
+            //{
+            //    // if email is not found then add the email there and generate the random verifcation password for it and contact number
 
-                var addingUser = new User();
-                addingUser.Email = user.Email;
-                addingUser.VerificationPassword = verificationNumber;
-                addingUser.Created_At = DateTime.Now;
-                addingUser.ContactNumber = phoneNumber;
+            //    var addingUser = new User();
+            //   // addingUser.Email = user.Email;
+            //  //  addingUser.VerificationPassword = verificationNumber;
+            //  //  addingUser.Created_At = DateTime.Now;
+            //    addingUser.ContactNumber = phoneNumber;
 
-                try
-                {
+            //    try
+            //    {
 
-                    await _dataContext.AddAsync(addingUser);
+            //        await _dataContext.AddAsync(addingUser);
 
-                }
-                catch (DbUpdateException ex) // if unique value is founded in contact number then update the contact value there.
-                {
-                    addingUser.ContactNumber = addingUser.ContactNumber + addingUser.ContactNumber[addingUser.ContactNumber.Length - 1];
-                    await _dataContext.AddAsync(addingUser);
-                }
-            }
+            //    }
+            //    catch (DbUpdateException ex) // if unique value is founded in contact number then update the contact value there.
+            //    {
+            //        addingUser.ContactNumber = addingUser.ContactNumber + addingUser.ContactNumber[addingUser.ContactNumber.Length - 1];
+            //        await _dataContext.AddAsync(addingUser);
+            //    }
+            //}
 
         }
 
         public async Task<string> CheckingVerificationCodeAsync(string email, string entererdVerificationCode, string jwtSecreteKey)
         {
-            var validatingCurrentUserGeneratedCode = await _dataContext.Users.FirstOrDefaultAsync(a => a.Email == email);
+            //var validatingCurrentUserGeneratedCode = await _dataContext.Users.FirstOrDefaultAsync(a => a.Email == email);
 
-                // checking the generate coded which is valid or not
-                if (validatingCurrentUserGeneratedCode.VerificationPassword == entererdVerificationCode)
-                {
-                    // user is validate means correct user
-                    // assigin to that user that code is used
-                    validatingCurrentUserGeneratedCode.VerificationPassword = "Code Used";
-                    validatingCurrentUserGeneratedCode.EmailVerification = true;
-                    _dataContext.Users.Update(validatingCurrentUserGeneratedCode);
+            //    // checking the generate coded which is valid or not
+            //    if (validatingCurrentUserGeneratedCode.VerificationPassword == entererdVerificationCode)
+            //    {
+            //        // user is validate means correct user
+            //        // assigin to that user that code is used
+            //        validatingCurrentUserGeneratedCode.VerificationPassword = "Code Used";
+            //        validatingCurrentUserGeneratedCode.EmailVerification = true;
+            //        _dataContext.Users.Update(validatingCurrentUserGeneratedCode);
 
-                    // generate a token
-                    // creatig jwt token
-                    List<Claim> myClaims = new List<Claim>
-                    {
-                        new Claim("UserId", validatingCurrentUserGeneratedCode.UserID.ToString()),
-                    };
-                    var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSecreteKey));
+            //        // generate a token
+            //        // creatig jwt token
+            //        List<Claim> myClaims = new List<Claim>
+            //        {
+            //            new Claim("UserId", validatingCurrentUserGeneratedCode.UserID.ToString()),
+            //        };
+            //        var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSecreteKey));
 
-                    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            //        var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-                    var token = new JwtSecurityToken(
-                        claims: myClaims,
-                        expires: DateTime.Now.AddDays(7),
-                        signingCredentials: signingCredentials
-                        );
+            //        var token = new JwtSecurityToken(
+            //            claims: myClaims,
+            //            expires: DateTime.Now.AddDays(7),
+            //            signingCredentials: signingCredentials
+            //            );
 
-                    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-                    return jwt;
+            //        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            //        return jwt;
 
-                }
-                else
-                {
-                    return null;
-                }
+            //    }
+            //    else
+            //    {
+            //        return null;
+            //    }
+            return "";
         }
 
         public async Task<object> AuthorizingUserAsync(string token)
@@ -121,10 +122,10 @@ namespace DataAccess.Repositories
             return new
             {
                 userId = user.UserID,
-                userName = user.UserName,
+               // userName = user.UserName,
                 userContactNumber = user.ContactNumber,
                 userProfilePhoto = user.ProfilePhotoUrl,
-                userStatus = user.About,
+              //  userStatus = user.About,
             };
         }
 
@@ -133,10 +134,10 @@ namespace DataAccess.Repositories
             var fetchingUserDataFromServer = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == userId);
             return new
             {
-                UserName = fetchingUserDataFromServer.UserName,
-                AboutStatus = fetchingUserDataFromServer.About,
+              //  UserName = fetchingUserDataFromServer.UserName,
+              //  AboutStatus = fetchingUserDataFromServer.About,
                 ProfilePhotoUrl = fetchingUserDataFromServer.ProfilePhotoUrl,
-                Email = fetchingUserDataFromServer.Email,
+              //  Email = fetchingUserDataFromServer.Email,
                 Contact = fetchingUserDataFromServer.ContactNumber
             };
         }
@@ -144,12 +145,12 @@ namespace DataAccess.Repositories
         public async Task AddingUserInfoAsync(AddUserInfo userInfo)
         {
             var updatingUserProfileData = await _dataContext.Users.FirstOrDefaultAsync(a => a.UserID == userInfo.UserId);
-            updatingUserProfileData.UserName = userInfo.UserName;
-            updatingUserProfileData.About = userInfo.AboutStatus;
+         //   updatingUserProfileData.UserName = userInfo.UserName;
+         //   updatingUserProfileData.About = userInfo.AboutStatus;
             if (userInfo.File != null)
             {
-                updatingUserProfileData.PublicId = userInfo.PublicId;
-                updatingUserProfileData.ProfilePhotoUrl = userInfo.ProfilePhotoUrl;
+          //      updatingUserProfileData.PublicId = userInfo.PublicId;
+          ///      updatingUserProfileData.ProfilePhotoUrl = userInfo.ProfilePhotoUrl;
             }
             _dataContext.Users.Update(updatingUserProfileData);
 

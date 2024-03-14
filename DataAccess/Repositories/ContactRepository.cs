@@ -91,7 +91,7 @@ namespace DataAccess.Repositories
             var userWantsToConnectItselfDetail = new
             {
                 ContactName = " ",
-                AboutStatus = findingUser.About,
+               // AboutStatus = findingUser.About,
                 BlockContact = false,
                 ConnectedInMessages = true,
                 ContactId = addContact[1].ContactID,
@@ -105,7 +105,7 @@ namespace DataAccess.Repositories
             var userAddedContactDetail =  new
             {
                 ContactName = addContact[0].FirstName + " " + addContact[0].LastName,
-                AboutStatus = isContactIsValidUser == null ? "": isContactIsValidUser.About,
+              //  AboutStatus = isContactIsValidUser == null ? "": isContactIsValidUser.About,
                 BlockContact = addContact[0].Block_Contact,
                 ConnectedInMessages = addContact[0].ConnectedInMessages,
                 ContactId = addContact[0].ContactID,
@@ -151,38 +151,39 @@ namespace DataAccess.Repositories
         {
             // performing the right joining and it is same as sql query
             // if any right table does not found that data where we are joining on it then we have to give the condition on it otherwise error like if contact on left table is not found that is on right then show left table show null and show right table its data 
-            var RightJoining = await (from c in _DataContext.Contacts // right-table
-                                     join u in _DataContext.Users // left - table
-                                     on c.PhoneNumber equals u.ContactNumber into bothTableData
-                                     from rightTable in bothTableData.DefaultIfEmpty()
-                                     where c.UserId == userId
-                                     select new FetchingSingleUserContacts
-                                     {
-                                         ContactId = c.ContactID,
-                                         ContactName = c.FirstName + " " + c.LastName,
-                                         PhoneNumber = c.PhoneNumber,
-                                         VerifiedContactUser = c.Verified_Contact,
-                                         AboutStatus = rightTable.About == null ? null : rightTable.About,
-                                         UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
-                                         UserId = rightTable.UserID == null ? 0 : rightTable.UserID,
+            //var RightJoining = await (from c in _DataContext.Contacts // right-table
+            //                         join u in _DataContext.Users // left - table
+            //                         on c.PhoneNumber equals u.ContactNumber into bothTableData
+            //                         from rightTable in bothTableData.DefaultIfEmpty()
+            //                         where c.UserId == userId
+            //                         select new FetchingSingleUserContacts
+            //                         {
+            //                             ContactId = c.ContactID,
+            //                             ContactName = c.FirstName + " " + c.LastName,
+            //                             PhoneNumber = c.PhoneNumber,
+            //                             VerifiedContactUser = c.Verified_Contact,
+            //                             AboutStatus = rightTable.About == null ? null : rightTable.About,
+            //                             UserImage = rightTable.ProfilePhotoUrl == null ? null : rightTable.ProfilePhotoUrl,
+            //                             UserId = rightTable.UserID == null ? 0 : rightTable.UserID,
 
 
-                                         BlockContact = c.Block_Contact, // this is userItself blocking value like when that same user logged in this will show user-blocks.
+            //                             BlockContact = c.Block_Contact, // this is userItself blocking value like when that same user logged in this will show user-blocks.
 
 
-                                         BlockContactByConnectedUser = rightTable.Contacts.FirstOrDefault(a => a.UserId == rightTable.UserID && a.UserGroupPrivateConnectionId == c.UserGroupPrivateConnectionId).Block_Contact ? 
-                                         rightTable.Contacts.FirstOrDefault(a => a.UserId == rightTable.UserID && a.UserGroupPrivateConnectionId == c.UserGroupPrivateConnectionId).Block_Contact : false, // connected user-block value
-
-
-
-                                         ConnectedInMessages = c.ConnectedInMessages,
-                                         groupId = c.UserGroupPrivateConnectionId
-                                     }).ToListAsync();
+            //                             BlockContactByConnectedUser = rightTable.Contacts.FirstOrDefault(a => a.UserId == rightTable.UserID && a.UserGroupPrivateConnectionId == c.UserGroupPrivateConnectionId).Block_Contact ? 
+            //                             rightTable.Contacts.FirstOrDefault(a => a.UserId == rightTable.UserID && a.UserGroupPrivateConnectionId == c.UserGroupPrivateConnectionId).Block_Contact : false, // connected user-block value
 
 
 
+            //                             ConnectedInMessages = c.ConnectedInMessages,
+            //                             groupId = c.UserGroupPrivateConnectionId
+            //                         }).ToListAsync();
 
-            return RightJoining;
+
+
+
+            //return RightJoining;
+            return new List<FetchingSingleUserContacts>();
         }
 
 

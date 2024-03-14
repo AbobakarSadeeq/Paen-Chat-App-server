@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Business_Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ namespace Business_Core.IServices
         Task RemoveUserConnectedContactsGroupIdFromRedisHashAsync(string userItSelfId);
         Task UserPhoneNumberVerificationSendCodeAsync(string phoneNumber);
         Task<bool> UserVerifyingSendedCodeAsync(string verificationCode, string phoneNumber);
+        Task AddNewUserToRedisAsync(User user);
 
 
     }

@@ -1,0 +1,32 @@
+# Ignore build output
+bin/
+obj/
+
+# Ignore compiled binaries
+*.dll
+*.exe
+
+# Ignore debug symbols
+*.pdb
+
+# Ignore Visual Studio files
+*.suo
+*.user
+*.vs/
+
+# ignore ALL .log files
+*.log
+
+.git/
+.vs/
+/Business Core/bin
+/Business Core/obj
+
+/DataAccess/obj
+/DataAccess/bin
+
+/paen-chat-app-server/obj
+/paen-chat-app-server/bin
+
+/Presentation/obj
+/Presentation/bin

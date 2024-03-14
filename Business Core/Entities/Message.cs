@@ -30,16 +30,16 @@ namespace Business_Core.Entities
             builder.HasKey(a => a.MessageID);
 
             // Relationship sender
-            builder.HasOne(a => a.SenderUser)
-                .WithMany(a => a.SenderMessages)
-                .HasForeignKey(a => a.SenderId);
+            //builder.HasOne(a => a.SenderUser)
+            //    .WithMany(a => a.SenderMessages)
+            //    .HasForeignKey(a => a.SenderId);
 
 
 
-            // Relationship reciver
-            builder.HasOne(a => a.ReciverUser)
-                .WithMany(a => a.ReciverMessage)
-                .HasForeignKey(a => a.ReceiverId);
+            //// Relationship reciver
+            //builder.HasOne(a => a.ReciverUser)
+            //    .WithMany(a => a.ReciverMessage)
+            //    .HasForeignKey(a => a.ReceiverId);
 
 
 

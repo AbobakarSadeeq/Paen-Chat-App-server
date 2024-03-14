@@ -13,6 +13,7 @@ using Presentation.AutoMapper;
 using StackExchange.Redis;
 using System.Text;
 using SpanJson;
+using CloudinaryDotNet;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
@@ -62,10 +63,22 @@ builder.Services.AddAutoMapper(typeof(AutoMap));
 var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisDbConnectionString"));
 builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
+var aa = builder.Configuration["CloudinarySettings:CloudName"].ToString();
+builder.Services.AddSingleton<Cloudinary>(provider =>
+{
+    var cloudinaryAccount = new Account(
+        builder.Configuration["CloudinarySettings:CloudName"].ToString(),
+        builder.Configuration["CloudinarySettings:ApiKey"].ToString(),
+        builder.Configuration["CloudinarySettings:ApiSecret"].ToString()
+         );
+
+    return new Cloudinary(cloudinaryAccount);
+});
 
 // services registeration
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddSingleton<IImageCloudStorageService, ImageCloudStorageService>();
 builder.Services.AddSingleton<IMessageRedisCacheService, MessageRedisCacheService>();
 builder.Services.AddSingleton<IContactRedisCacheService, ContactRedisCacheService>();
 builder.Services.AddSingleton<IUserRedisCacheService, UserRedisCacheService>();

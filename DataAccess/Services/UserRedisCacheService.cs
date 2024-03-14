@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpanJson;
+using Business_Core.Entities;
 
 namespace DataAccess.Services
 {
@@ -20,7 +21,7 @@ namespace DataAccess.Services
         {
             var redisDb = _redis.GetDatabase();
             if (await redisDb.SetContainsAsync("UsersAvailabilityStatus", userId.ToString()) == false)
-                 await redisDb.SetAddAsync("UsersAvailabilityStatus", userId.ToString());
+                await redisDb.SetAddAsync("UsersAvailabilityStatus", userId.ToString());
 
         }
 
@@ -39,7 +40,7 @@ namespace DataAccess.Services
                 return false;
 
         }
-
+        // ----------------------------- New Code -----------------------------
         public async Task UserPhoneNumberVerificationSendCodeAsync(string phoneNumber)
         {
             var redisDb = _redis.GetDatabase();
@@ -65,13 +66,47 @@ namespace DataAccess.Services
         {
             var redisDb = _redis.GetDatabase();
             var getVerificationCodeByPhoneNumber = await redisDb.HashGetAsync("UserVerificationCodes", phoneNumber);
-            if (verificationCode != getVerificationCodeByPhoneNumber.ToString()) 
+            if (verificationCode != getVerificationCodeByPhoneNumber.ToString())
                 return false;
             await redisDb.HashDeleteAsync("UserVerificationCodes", phoneNumber);
 
             return true;
 
         }
+
+        public async Task AddNewUserToRedisAsync(User user)
+        {
+            // use the redis hash
+            // key = phoneNumner, value = userInfo
+            var redisDb = _redis.GetDatabase();
+            if (await redisDb.HashGetAsync("Users", user.ContactNumber) != true)
+            {
+                // add new user to the redis if a that specefic phoneNumber does found in redis
+                string jsonStringObj = convertUserObjectIntoJson(user);
+                await redisDb.HashSetAsync("Users", new HashEntry[]
+                {
+                new HashEntry(user.ContactNumber, jsonStringObj)
+                });
+            }
+
+        }
+
+        private string convertUserObjectIntoJson(User user)
+        {
+            var mappingUser = new
+            {
+                aboutStatus = user.AboutStatus,
+                contactNumber = user.ContactNumber,
+                fullName = user.FullName,
+                profilePhotoUrl = user.ProfilePhotoUrl,
+                UserGroupPrivateConnectionIds = "",
+                createdAt = DateTime.Now,
+                LastOnline = ""
+            };
+            return JsonSerializer.Generic.Utf16.Serialize(mappingUser);
+        }
+
+        // ----------------------------- End New Code -----------------------------
 
 
         // Redis Hash data 
@@ -102,6 +137,6 @@ namespace DataAccess.Services
 
         }
 
-       
+
     }
 }

@@ -31,10 +31,10 @@ namespace Business_Core.Entities
             builder.HasKey(a => a.ContactID);
 
             // Relationship
-            builder.HasOne(a => a.User)
-                .WithMany(a => a.Contacts)
-                .HasForeignKey(a => a.UserId)
-                .IsRequired(true);
+            //builder.HasOne(a => a.User)
+            //    .WithMany(a => a.Contacts)
+            //    .HasForeignKey(a => a.UserId)
+            //    .IsRequired(true);
         }
     }
 }

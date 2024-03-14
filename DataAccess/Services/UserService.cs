@@ -89,7 +89,7 @@ namespace DataAccess.Services
             var verificationNumber = GeneratingVerificationNumber();
             var randomPhoneNumberGenrator = GeneratingRandomUserPhoneNumber();
             await _unitOfWork._userRepository.RegisteringUserAsync(user, verificationNumber, randomPhoneNumberGenrator);
-            SendVerificationNumberEmail(verificationNumber, user.Email);
+           // SendVerificationNumberEmail(verificationNumber, user.Email);
             await _unitOfWork.CommitAsync();
         }
 
